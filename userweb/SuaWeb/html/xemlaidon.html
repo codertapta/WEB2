@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Xem Lại Đơn Hàng</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #ffffff;
+        margin: 0;
+        padding: 0;
+        color: #333;
+      }
+      .home-logo {
+        position: absolute;
+        top: 15px;
+        left: 20px;
+      }
+
+      .home-logo img {
+        width: 50px;
+        cursor: pointer;
+      }
+
+      header {
+        background-color: #c40000;
+        color: white;
+        text-align: center;
+        padding: 20px 0;
+        font-size: 24px;
+        font-weight: bold;
+        letter-spacing: 1px;
+      }
+
+      .container {
+        width: 90%;
+        margin: 30px auto;
+      }
+
+      /* Địa chỉ */
+      .address-section {
+        border: 2px solid #c40000;
+        border-radius: 10px;
+        padding: 20px;
+        background-color: #fff5f5;
+        margin-bottom: 30px;
+      }
+
+      .address-header {
+        font-size: 20px;
+        font-weight: bold;
+        color: #c40000;
+        margin-bottom: 15px;
+      }
+
+      .address-details {
+        line-height: 1.8;
+        font-size: 16px;
+      }
+
+      /* Sản phẩm */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 30px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      th {
+        background-color: #e60000;
+        color: white;
+        padding: 12px;
+        text-align: center;
+      }
+
+      td {
+        border-bottom: 1px solid #ddd;
+        text-align: center;
+        padding: 12px;
+      }
+
+      img {
+        width: 100px;
+        border-radius: 8px;
+      }
+
+      /* Phương thức thanh toán */
+      .payment-section {
+        border: 2px solid #c40000;
+        border-radius: 10px;
+        padding: 20px;
+        background-color: #fff5f5;
+        margin-bottom: 30px;
+      }
+
+      .payment-section h3 {
+        color: #c40000;
+        font-size: 20px;
+        margin-bottom: 15px;
+      }
+
+      .confirm {
+        text-align: right;
+      }
+
+      .confirm button {
+        background-color: #c40000;
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 6px;
+        font-size: 16px;
+        cursor: pointer;
+        margin-left: 10px;
+      }
+
+      .confirm button:hover {
+        background-color: #a00000;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <a href="products.html" class="home-logo">
+        <img src="../img/logo.png" alt="Home" />
+      </a>
+      🧾 Xem Lại Đơn Hàng
+    </header>
+
+    <div class="container">
+      <!-- Thông tin nhận hàng -->
+      <div class="address-section">
+        <div class="address-header">Địa chỉ nhận hàng</div>
+        <div class="address-details">
+          <strong>Trần Tấn Phát</strong> (+84) 123 456 789 <br />
+          666 Cách Mạng Tháng 9, Phường 36, Quận Tân Bình, TP. Hồ Chí Minh
+        </div>
+      </div>
+
+      <!-- Danh sách sản phẩm -->
+      <table>
+        <tr>
+          <th>Sản phẩm</th>
+          <th>Đơn giá</th>
+          <th>Số lượng</th>
+          <th>Thành tiền</th>
+        </tr>
+        <tr>
+          <td>
+            <img src="../img/sp1.jpg" alt="Laptop 1" /><br />
+            Laptop Dell Inspiron 15
+          </td>
+          <td>18.000.000₫</td>
+          <td>1</td>
+          <td>18.000.000₫</td>
+        </tr>
+        <tr>
+          <td>
+            <img src="../img/sp2.jpg" alt="Laptop 2" /><br />
+            Laptop Asus Vivobook X
+          </td>
+          <td>16.500.000₫</td>
+          <td>1</td>
+          <td>16.500.000₫</td>
+        </tr>
+        <tr>
+          <th colspan="3" style="text-align: right">Tổng cộng:</th>
+          <th style="color: white">34.500.000₫</th>
+        </tr>
+      </table>
+
+      <!-- Phương thức thanh toán -->
+      <div class="payment-section">
+        <h3>Phương thức thanh toán đã chọn:</h3>
+        <p>💵 Thanh toán tiền mặt khi nhận hàng (COD)</p>
+      </div>
+
+      <!-- Nút xác nhận -->
+      <div class="confirm">
+        <button onclick="window.location.href = 'dathang.html'">
+          🔙 Quay lại chỉnh sửa
+        </button>
+        <button onclick="window.location.href = 'thanhcong.html'">
+          ✅ Xác nhận đặt hàng
+        </button>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Thanh toán thành công</title>
+
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #ffffff;
+        margin: 0;
+        padding: 0;
+      }
+
+      header {
+        background: #c40000;
+        color: white;
+        text-align: center;
+        padding: 20px;
+        font-size: 24px;
+        font-weight: bold;
+      }
+
+      /* logo home */
+
+      .home-logo {
+        position: absolute;
+        top: 15px;
+        left: 20px;
+      }
+
+      .home-logo img {
+        width: 50px;
+        cursor: pointer;
+      }
+
+      /* container */
+
+      .container {
+        width: 85%;
+        margin: 30px auto;
+      }
+
+      /* success */
+
+      .success-box {
+        border: 2px solid #c40000;
+        background: #fff5f5;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+      }
+
+      .success-box h2 {
+        color: #c40000;
+        margin-top: 0;
+      }
+
+      /* info */
+
+      .info {
+        line-height: 1.8;
+        font-size: 16px;
+      }
+
+      /* table */
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      th {
+        background: #e60000;
+        color: white;
+        padding: 10px;
+      }
+
+      td {
+        padding: 10px;
+        text-align: center;
+        border-bottom: 1px solid #ddd;
+      }
+
+      img {
+        width: 80px;
+        border-radius: 6px;
+      }
+
+      /* total */
+
+      .total {
+        text-align: right;
+        font-size: 18px;
+        font-weight: bold;
+        margin-top: 15px;
+      }
+
+      /* buttons */
+
+      .buttons {
+        margin-top: 30px;
+        text-align: right;
+      }
+
+      button {
+        padding: 12px 20px;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        cursor: pointer;
+        margin-left: 10px;
+      }
+
+      .home-btn {
+        background: #666;
+        color: white;
+      }
+
+      .home-btn:hover {
+        background: #444;
+      }
+
+      .order-btn {
+        background: #c40000;
+        color: white;
+      }
+
+      .order-btn:hover {
+        background: #a00000;
+      }
+    </style>
+  </head>
+
+  <body>
+    <a href="products.html" class="home-logo">
+      <img src="../img/logo.png" />
+    </a>
+
+    <header>✔ Đặt hàng thành công</header>
+
+    <div class="container">
+      <div class="success-box">
+        <h2>Đơn hàng của bạn đã được đặt thành công!</h2>
+
+        <div class="info">
+          <p><strong>Mã đơn hàng:</strong> #MUIT1025</p>
+
+          <p><strong>Người nhận:</strong> Trần Tấn Phát</p>
+
+          <p><strong>Số điện thoại:</strong> 0123456789</p>
+
+          <p>
+            <strong>Địa chỉ:</strong> 666 Cách Mạng Tháng 9, Quận Tân Bình,
+            TP.HCM
+          </p>
+
+          <p>
+            <strong>Phương thức thanh toán:</strong> Thanh toán khi nhận hàng
+            (COD)
+          </p>
+        </div>
+      </div>
+
+      <table>
+        <tr>
+          <th>Sản phẩm</th>
+          <th>Đơn giá</th>
+          <th>Số lượng</th>
+          <th>Thành tiền</th>
+        </tr>
+
+        <tr>
+          <td>
+            <img src="../img/sp1.jpg" /><br />
+            Laptop Dell Inspiron 15
+          </td>
+          <td>18.000.000₫</td>
+          <td>1</td>
+          <td>18.000.000₫</td>
+        </tr>
+
+        <tr>
+          <td>
+            <img src="../img/sp2.jpg" /><br />
+            Laptop Asus Vivobook X
+          </td>
+          <td>16.500.000₫</td>
+          <td>1</td>
+          <td>16.500.000₫</td>
+        </tr>
+      </table>
+
+      <div class="total">
+        Tổng thanh toán: <span style="color: #e60000">34.500.000₫</span>
+      </div>
+
+      <div class="buttons">
+        <button
+          class="home-btn"
+          onclick="window.location.href = 'products.html'"
+        >
+          ← Tiếp tục mua sắm
+        </button>
+
+        <button
+          class="order-btn"
+          onclick="window.location.href = 'donhangdadat.html'"
+        >
+          Xem đơn hàng
+        </button>
+      </div>
+    </div>
+  </body>
+</html>
