@@ -103,7 +103,7 @@ CREATE TABLE `users` (
   `id` int(11) NOT NULL,
   `ho` varchar(100) DEFAULT NULL,
   `ten` varchar(100) DEFAULT NULL,
-  `phone` varchar(20) DEFAULT NULL,
+  `sdt` varchar(20) DEFAULT NULL,
   `address` varchar(255) DEFAULT NULL,
   `email` varchar(100) DEFAULT NULL,
   `password` varchar(255) DEFAULT NULL
@@ -113,7 +113,7 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `ho`, `ten`, `phone`, `address`, `email`, `password`) VALUES
+INSERT INTO `users` (`id`, `ho`, `ten`, `sdt`, `address`, `email`, `password`) VALUES
 (1, 'Trần', 'Tấn Phát', '0123456789', 'TP Hồ Chí Minh', 'phat@gmail.com', '123456'),
 (2, 'Nguyễn', 'Văn A', '0987654321', 'Hà Nội', 'vana@gmail.com', '123456'),
 (3, 'Lê', 'Thị B', '0912345678', 'Đà Nẵng', 'thib@gmail.com', '123456'),

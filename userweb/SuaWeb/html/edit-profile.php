@@ -153,12 +153,12 @@ $user = mysqli_fetch_assoc($result);
 
       <div class="form-group">
         <label>Số điện thoại</label>
-        <input type="tel" name="phone" value="<?php echo htmlspecialchars($user['phone']); ?>" required placeholder="Nhập số điện thoại">
+        <input type="tel" name="sdt" value="<?php echo htmlspecialchars($user['sdt']); ?>" required placeholder="Nhập số điện thoại">
       </div>
 
       <div class="form-group">
         <label>Địa chỉ</label>
-        <input type="text" name="address" value="<?php echo htmlspecialchars($user['address']); ?>" required placeholder="Nhập địa chỉ">
+        <input type="text" name="diachi" value="<?php echo htmlspecialchars($user['diachi']); ?>" required placeholder="Nhập địa chỉ">
       </div>
 
       <button type="submit" class="btn-main">Lưu thay đổi</button>
