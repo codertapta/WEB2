@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Thông số kỹ thuật</title>
+
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f5f5f5;
+        margin: 0;
+      }
+
+      /* HEADER */
+
+      header {
+        background: #c40000;
+        color: white;
+        padding: 20px;
+        text-align: center;
+        font-size: 24px;
+        font-weight: bold;
+        position: relative;
+      }
+
+      .logo {
+        position: absolute;
+        left: 20px;
+        top: 10px;
+      }
+
+      .logo img {
+        width: 50px;
+        border-radius: 5px;
+      }
+
+      /* CONTAINER */
+
+      .container {
+        max-width: 900px;
+        margin: 40px auto;
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+      }
+
+      /* IMAGE */
+
+      .product-img {
+        width: 350px;
+        border-radius: 10px;
+        margin-bottom: 25px;
+      }
+
+      /* TABLE ĐẸP HƠN */
+
+      .spec-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+
+      .spec-table tr {
+        border-bottom: 1px solid #eee;
+      }
+
+      .spec-table tr:nth-child(even) {
+        background: #fafafa;
+      }
+
+      .spec-table td {
+        padding: 14px;
+        font-size: 15px;
+        text-align: left;
+      }
+
+      .spec-name {
+        font-weight: bold;
+        width: 40%;
+        color: #444;
+      }
+
+      /* BUTTON */
+
+      .back {
+        display: inline-block;
+        margin-top: 25px;
+        background: #c40000;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 6px;
+        text-decoration: none;
+      }
+
+      .back:hover {
+        background: #a00000;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <a href="products.html" class="logo">
+        <img src="../img/logo.png" />
+      </a>
+
+      Thông Số Kỹ Thuật
+    </header>
+
+    <div class="container">
+      <img src="../img/LaptopGaming/gm1.webp" class="product-img" />
+
+      <table class="spec-table">
+        <tr>
+          <td class="spec-name">CPU</td>
+          <td>Intel Core i7-13700H</td>
+        </tr>
+
+        <tr>
+          <td class="spec-name">RAM</td>
+          <td>16GB DDR5</td>
+        </tr>
+
+        <tr>
+          <td class="spec-name">Ổ cứng</td>
+          <td>512GB SSD NVMe</td>
+        </tr>
+
+        <tr>
+          <td class="spec-name">Card đồ họa</td>
+          <td>NVIDIA GeForce RTX 4060</td>
+        </tr>
+
+        <tr>
+          <td class="spec-name">Màn hình</td>
+          <td>15.6" FHD IPS 165Hz</td>
+        </tr>
+
+        <tr>
+          <td class="spec-name">Pin</td>
+          <td>90Wh</td>
+        </tr>
+
+        <tr>
+          <td class="spec-name">Trọng lượng</td>
+          <td>2.2 kg</td>
+        </tr>
+
+        <tr>
+          <td class="spec-name">Hệ điều hành</td>
+          <td>Windows 11</td>
+        </tr>
+      </table>
+
+      <a href="./products-detail.html" class="back"> ← Quay lại sản phẩm </a>
+    </div>
+  </body>
+</html>

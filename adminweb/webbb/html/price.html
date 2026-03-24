@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quản Lý Giá Bán</title>
+    <link rel="stylesheet" href="../css/style.css" />
+  </head>
+
+  <body>
+    <div class="sidebar">
+      <div class="logo">
+        <h2>Muit Store</h2>
+        <p>Hệ Thống Quản Lý</p>
+      </div>
+
+      <nav class="menu">
+        <a href="index.html" class="menu-item"><span>📊</span> Tổng quan</a>
+        <a href="customers.html" class="menu-item"
+          ><span>👥</span> Quản Lý Khách Hàng</a
+        >
+        <a href="categories.html" class="menu-item"
+          ><span>📂</span> Loại Sản Phẩm</a
+        >
+        <a href="products.html" class="menu-item"
+          ><span>💻</span> Danh Mục Sản Phẩm</a
+        >
+        <a href="import.html" class="menu-item"
+          ><span>🚚</span> Quản Lý Nhập Hàng</a
+        >
+        <a href="price.html" class="menu-item active"
+          ><span>🏷️</span> Quản Lý Giá Bán</a
+        >
+        <a href="orders.html" class="menu-item"
+          ><span>🛒</span> Quản Lý Đơn Hàng</a
+        >
+        <a href="inventory.html" class="menu-item"
+          ><span>📦</span> Quản Lý Tồn Kho</a
+        >
+      </nav>
+    </div>
+
+    <div class="main-content">
+      <div class="top-bar">
+        <h1>Quản Lý Giá Bán Sản Phẩm</h1>
+
+        <!-- ADMIN INFO -->
+        <div class="info">
+          <img src="../img/logo.png" alt="Admin" />
+          <span>Admin</span>
+          <button onclick="logout()">Đăng xuất</button>
+        </div>
+
+        <a href="#popupForm" class="head">+ Cập nhật giá</a>
+      </div>
+
+      <div class="container">
+        <div class="card" style="margin-bottom: 20px">
+          <div class="title">
+            <h3>Tìm kiếm sản phẩm</h3>
+          </div>
+
+          <div class="search">
+            <input type="text" placeholder="🔍 Tìm kiếm " class="input-field" />
+            <input type="date" class="input-field" />
+            <button class="btn-search">Tìm kiếm</button>
+            <button class="btn-reset">Làm mới</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Danh Sách Giá Bán</h3>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Mã Phiếu</th>
+                <th>Ngày Nhập</th>
+                <th>Loại Sản Phẩm</th>
+                <th>Tên Sản Phẩm</th>
+                <th>Giá Vốn</th>
+                <th>Tỷ Lệ Lợi Nhuận (%)</th>
+                <th>Giá Bán</th>
+                <th>Thao Tác</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr>
+                <td>MP001</td>
+                <td>2025-10-31</td>
+                <td>Laptop</td>
+                <td>MacBook Air M3</td>
+                <td>28,000,000đ</td>
+                <td>20%</td>
+                <td>33,600,000đ</td>
+                <td><a href="#popupForm" class="btn-edit">Sửa</a></td>
+              </tr>
+
+              <tr>
+                <td>MP002</td>
+                <td>2025-10-25</td>
+                <td>Phụ Kiện</td>
+                <td>Chuột Logitech MX Master</td>
+                <td>1,200,000đ</td>
+                <td>25%</td>
+                <td>1,500,000đ</td>
+                <td><a href="#popupForm" class="btn-edit">Sửa</a></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- POPUP -->
+
+    <div id="popupForm" class="popup-overlay">
+      <div class="popup">
+        <a href="#" class="close-btn">✖</a>
+        <h3 style="color: #dc2626; margin-bottom: 10px">Nhập / Sửa Giá Bán</h3>
+
+        <form>
+          <label>Loại sản phẩm:</label>
+          <select class="input-field">
+            <option>-- Chọn loại --</option>
+            <option>Laptop</option>
+            <option>Phụ kiện</option>
+          </select>
+
+          <label>Tên sản phẩm:</label>
+          <input type="text" class="input-field" placeholder="Tên sản phẩm" />
+
+          <label>Giá vốn:</label>
+          <input type="number" class="input-field" placeholder="Nhập giá vốn" />
+
+          <label>% lợi nhuận:</label>
+          <input type="number" class="input-field" placeholder="Nhập tỷ lệ %" />
+
+          <label>Giá bán (tự tính):</label>
+          <input
+            type="text"
+            class="input-field"
+            readonly
+            placeholder="Giá bán sẽ hiển thị ở đây"
+          />
+
+          <button type="submit" class="btn-save">Lưu Thông Tin</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- LOGIN SCRIPT -->
+
+    <script>
+      if (sessionStorage.getItem("adminLoggedIn") !== "true") {
+        window.location.href = "admin-login.html";
+      }
+
+      function logout() {
+        sessionStorage.clear();
+        window.location.href = "login.html";
+      }
+    </script>
+  </body>
+</html>

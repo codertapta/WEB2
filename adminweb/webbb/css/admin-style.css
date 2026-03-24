@@ -1,0 +1,133 @@
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* BODY */
+.admin-login-body {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #fffbfb, #ff0000);
+}
+
+/* CONTAINER */
+.admin-login-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* LOGIN BOX */
+.admin-login-box {
+  background: white;
+  padding: 40px;
+  border-radius: 12px;
+  width: 380px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+/* HEADER */
+.admin-login-header h1 {
+  color: #d80000;
+  margin-top: 10px;
+  font-size: 26px;
+}
+
+.admin-login-header p {
+  color: #666;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+/* LOGO */
+.admin-logo {
+  width: 80px;
+  margin-bottom: 10px;
+}
+
+/* FORM */
+.admin-login-form {
+  margin-top: 25px;
+  text-align: left;
+}
+
+/* FORM GROUP */
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: bold;
+  color: #333;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: 0.3s;
+}
+
+.form-group input:focus {
+  border-color: #ff0000;
+  outline: none;
+  box-shadow: 0 0 5px rgba(255, 0, 0, 0.3);
+}
+
+/* ERROR MESSAGE */
+.error-message {
+  background: #ffe5e5;
+  color: #d80000;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+/* BUTTON */
+.admin-login-btn {
+  width: 100%;
+  padding: 12px;
+  background: #ff0000;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.admin-login-btn:hover {
+  background: #cc0000;
+}
+
+/* FOOTER */
+.admin-login-footer {
+  margin-top: 20px;
+  font-size: 13px;
+  color: #777;
+}
+
+.admin-login-footer a {
+  display: block;
+  margin-top: 8px;
+  color: #d80000;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.admin-login-footer a:hover {
+  text-decoration: underline;
+}
