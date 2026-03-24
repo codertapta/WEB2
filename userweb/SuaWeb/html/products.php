@@ -1,305 +1,180 @@
+<?php require __DIR__ . "/../../../config.php"; ?>
 
 <!doctype html>
 <html lang="vi">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Danh sách sản phẩm - MUIT</title>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Danh sách sản phẩm - MUIT</title>
 
-    <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/style.css" />
 
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-  </head>
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+</head>
 
-  <body>
-    <!-- Header -->
-    <header class="header">
-      <div class="logo-section">
-        <a href="#" class="logo">
-          <img src="../img/logo.png" alt="Logo MUIT" />
-        </a>
-        <a href="#" class="logo-text">MUIT</a>
-      </div>
+<body>
 
-      <nav>
-        <ul class="nav-links">
-          <li><a href="products.html">Trang chủ</a></li>
-          <li><a href="ai.html">Laptop AI</a></li>
-          <li><a href="gaming.html">Laptop Gaming</a></li>
-          <li><a href="mong.html">Laptop mỏng nhẹ</a></li>
-        </ul>
-      </nav>
+<?php
+  session_start();
+  $user_id = $_SESSION['user_id'];
+// đếm giỏ hàng
+$count = mysqli_fetch_assoc(mysqli_query($conn,
+"SELECT SUM(quantity) as total FROM cart WHERE user_id=$user_id"));
+?>
 
-      <div class="search-and-hotline">
-        <div class="search-container">
-          <input type="text" placeholder="Tìm kiếm sản phẩm..." />
-          <a href="./timkiemnc.html">
-            <button type="submit">Tìm</button>
-          </a>
-        </div>
-        <div class="hotline">Hotline:19001234</div>
-      </div>
+<!-- Header -->
+<header class="header">
+  <div class="logo-section">
+    <a href="products.php" class="logo">
+      <img src="../img/logo.png" alt="Logo MUIT" />
+    </a>
+    <a href="products.php" class="logo-text">MUIT</a>
+  </div>
 
-      <div class="right-icons">
-        <a href="profile.php" class="icon-link" title="Tài khoản">
-          <i class="fas fa-user"></i>
-        </a>
+  <nav>
+    <ul class="nav-links">
+      <li><a href="products.php">Trang chủ</a></li>
+      <li><a href="#">Laptop AI</a></li>
+      <li><a href="#">Laptop Gaming</a></li>
+      <li><a href="#">Laptop mỏng nhẹ</a></li>
+    </ul>
+  </nav>
 
-        <a href="giohang.html" class="icon-link" title="Giỏ hàng">
-          <i class="fas fa-shopping-cart"></i>
-          <span class="cart-count">3</span>
-        </a>
-
-        <a href="donhangdadat.html" class="icon-link" title="Đơn hàng của tôi">
-          <i class="fas fa-receipt"></i>
-        </a>
-      </div>
-    </header>
-
-    <!-- Banner (đang tắt)
-    <div class="banner-container">
-      <img class="banner-img active" src="banner1.jpg" alt="Banner 1" />
-      <img class="banner-img" src="banner2.jpg" alt="Banner 2" />
-      <img class="banner-img" src="banner3.jpg" alt="Banner 3" />
+  <div class="search-and-hotline">
+    <div class="search-container">
+      <input type="text" placeholder="Tìm kiếm sản phẩm..." />
+      <button type="submit">Tìm</button>
     </div>
-    -->
+    <div class="hotline">Hotline:19001234</div>
+  </div>
 
-    <main>
-      <div class="product-grid">
-        <!-- Product -->
-        <div class="product-item">
-          <img src="../img/sp1.jpg" alt="Laptop 1" />
-          <h3>Laptop Gaming X</h3>
-          <p>Giá: 15,000,000 VND</p>
+  <div class="right-icons">
+    <a href="profile.php" class="icon-link" title="Tài khoản">
+      <i class="fas fa-user"></i>
+    </a>
 
-          <div class="product-actions">
-            <a href="dathang.html" class="buy-now-link">Mua ngay</a>
+    <a href="cart.php" class="icon-link" title="Giỏ hàng">
+      <i class="fas fa-shopping-cart"></i>
+      <span class="cart-count">
+        <?php echo $count['total'] ? $count['total'] : 0; ?>
+      </span>
+    </a>
 
-            <a
-              href="giohang.html"
-              class="add-to-cart"
-              title="Thêm vào giỏ hàng"
-            >
-              <i class="fas fa-cart-plus"></i>
-            </a>
+    <a href="orders.php" class="icon-link" title="Đơn hàng của tôi">
+      <i class="fas fa-receipt"></i>
+    </a>
+  </div>
+</header>
 
-            <a
-              href="products-detail.html"
-              class="view-detail"
-              title="Xem chi tiết"
-            >
-              <i class="fas fa-eye"></i> Xem chi tiết
-            </a>
-          </div>
-        </div>
+<main>
+  <div class="product-grid">
 
-        <!-- Product -->
-        <div class="product-item">
-          <img src="../img/laptopAI/ai1.webp" alt="Laptop 2" />
-          <h3>Laptop Gaming X</h3>
-          <p>Giá: 10,000,000 VND</p>
+    <?php
+    $result = mysqli_query($conn,"SELECT * FROM products");
 
-          <div class="product-actions">
-            <a href="dathang.html" class="buy-now-link">Mua ngay</a>
+    while($row = mysqli_fetch_assoc($result)) {
+    ?>
 
-            <a href="giohang.html" class="add-to-cart">
-              <i class="fas fa-cart-plus"></i>
-            </a>
+    <!-- Product -->
+    <div class="product-item">
+      <img src="../img/<?php echo $row['image']; ?>" alt="">
+      <h3><?php echo $row['name']; ?></h3>
+      <p>Giá: <?php echo number_format($row['price']); ?> VND</p>
 
-            <a href="products-detail.html" class="view-detail">
-              <i class="fas fa-eye"></i> Xem chi tiết
-            </a>
-          </div>
-        </div>
+      <div class="product-actions">
 
-        <!-- Product -->
-        <div class="product-item">
-          <img src="../img/sp3.jpg" alt="Laptop 3" />
-          <h3>Laptop Gaming X</h3>
-          <p>Giá: 25,000,000 VND</p>
+        <!-- Mua ngay -->
+        <a href="checkout.php?id=<?php echo $row['id']; ?>" class="buy-now-link">
+          Mua ngay
+        </a>
 
-          <div class="product-actions">
-            <a href="dathang.html" class="buy-now-link">Mua ngay</a>
+        <!-- Thêm giỏ -->
+        <a href="add_to_cart.php?id=<?php echo $row['id']; ?>"
+           class="add-to-cart" title="Thêm vào giỏ hàng">
+          <i class="fas fa-cart-plus"></i>
+        </a>
 
-            <a href="giohang.html" class="add-to-cart">
-              <i class="fas fa-cart-plus"></i>
-            </a>
+        <!-- Chi tiết -->
+        <a href="product_detail.php?id=<?php echo $row['id']; ?>"
+           class="view-detail">
+          <i class="fas fa-eye"></i> Xem chi tiết
+        </a>
 
-            <a href="products-detail.html" class="view-detail">
-              <i class="fas fa-eye"></i> Xem chi tiết
-            </a>
-          </div>
-        </div>
+      </div>
+    </div>
 
-        <!-- Product -->
-        <div class="product-item">
-          <img src="../img/LaptopGaming/gm1.webp" alt="Laptop 4" />
-          <h3>Laptop Gaming X</h3>
-          <p>Giá: 8,500,000 VND</p>
+    <?php } ?>
 
-          <div class="product-actions">
-            <a href="dathang.html" class="buy-now-link">Mua ngay</a>
+  </div>
 
-            <a href="giohang.html" class="add-to-cart">
-              <i class="fas fa-cart-plus"></i>
-            </a>
+  <!-- Pagination (giữ nguyên UI) -->
+  <div class="product-pagination">
+    <a class="page prev" href="#">&lt;</a>
+    <a class="page active" href="#">1</a>
+    <a class="page" href="#">2</a>
+    <a class="page" href="#">3</a>
+    <a class="page next" href="#">&gt;</a>
+  </div>
+</main>
 
-            <a href="products-detail.html" class="view-detail">
-              <i class="fas fa-eye"></i> Xem chi tiết
-            </a>
-          </div>
-        </div>
-
-        <!-- Product -->
-        <div class="product-item">
-          <img src="../img/sp5.jpg" alt="Laptop 5" />
-          <h3>Laptop Gaming X</h3>
-          <p>Giá: 20,000,000 VND</p>
-
-          <div class="product-actions">
-            <a href="dathang.html" class="buy-now-link">Mua ngay</a>
-
-            <a href="giohang.html" class="add-to-cart">
-              <i class="fas fa-cart-plus"></i>
-            </a>
-
-            <a href="products-detail.html" class="view-detail">
-              <i class="fas fa-eye"></i> Xem chi tiết
-            </a>
-          </div>
-        </div>
-
-        <!-- Product -->
-        <div class="product-item">
-          <img src="../img/sp6.jpg" alt="Laptop 6" />
-          <h3>Laptop Gaming X</h3>
-          <p>Giá: 12,000,000 VND</p>
-
-          <div class="product-actions">
-            <a href="dathang.html" class="buy-now-link">Mua ngay</a>
-
-            <a href="giohang.html" class="add-to-cart">
-              <i class="fas fa-cart-plus"></i>
-            </a>
-
-            <a href="products-detail.html" class="view-detail">
-              <i class="fas fa-eye"></i> Xem chi tiết
-            </a>
-          </div>
-        </div>
-
-        <!-- Product -->
-        <div class="product-item">
-          <img src="../img/sp7.jpg" alt="Laptop 7" />
-          <h3>Laptop Gaming X</h3>
-          <p>Giá: 19,000,000 VND</p>
-
-          <div class="product-actions">
-            <a href="dathang.html" class="buy-now-link">Mua ngay</a>
-
-            <a href="giohang.html" class="add-to-cart">
-              <i class="fas fa-cart-plus"></i>
-            </a>
-
-            <a href="products-detail.html" class="view-detail">
-              <i class="fas fa-eye"></i> Xem chi tiết
-            </a>
-          </div>
-        </div>
-
-        <!-- Product -->
-        <div class="product-item">
-          <img src="../img/sp8.jpg" alt="Laptop 8" />
-          <h3>Laptop Gaming X</h3>
-          <p>Giá: 36,000,000 VND</p>
-
-          <div class="product-actions">
-            <a href="dathang.html" class="buy-now-link">Mua ngay</a>
-
-            <a href="giohang.html" class="add-to-cart">
-              <i class="fas fa-cart-plus"></i>
-            </a>
-
-            <a href="products-detail.html" class="view-detail">
-              <i class="fas fa-eye"></i> Xem chi tiết
-            </a>
-          </div>
-        </div>
+<!-- Footer -->
+<footer>
+  <div class="f1">
+    <div class="f1_content">
+      <div class="logo">
+        <img src="../img/logo.png" alt="ảnh logo" />
+        <span><h3>MUIT</h3></span>
       </div>
 
-      <!-- Pagination -->
-      <div class="product-pagination">
-        <a class="page prev" href="products.html">&lt;</a>
-        <a class="page active" href="products.html">1</a>
-        <a class="page" href="trangchu2.html">2</a>
-        <a class="page" href="trangchu3.html">3</a>
-        <a class="page" href="">4</a>
-        <a class="page" href="">5</a>
-        <a class="page next" href="trangchu2.html">&gt;</a>
-      </div>
-    </main>
-
-    <script src="script.js"></script>
-
-    <!-- Footer -->
-    <footer>
-      <div class="f1">
-        <div class="f1_content">
-          <div class="logo">
-            <img src="../img/logo.png" alt="ảnh logo" />
-            <span><h3>MUIT</h3></span>
-          </div>
-
-          <div>
-            <h2>Đăng kí nhận thông tin</h2>
-            <p>Nhận thông tin mới nhất về chúng tôi</p>
-          </div>
-
-          <div class="email">
-            <input type="email" placeholder="Nhập email của bạn" />
-            <button type="submit">Đăng ký</button>
-          </div>
-        </div>
+      <div>
+        <h2>Đăng kí nhận thông tin</h2>
+        <p>Nhận thông tin mới nhất về chúng tôi</p>
       </div>
 
-      <div class="f2">
-        <div class="f2_content1">
-          <h4>VỀ CHÚNG TÔI</h4>
-          <ul>
-            <li>Giới thiệu về công ty</li>
-            <li>Quy chế hoạt động</li>
-            <li>Dự án Doanh nghiệp</li>
-            <li>Tin tức khuyến mại</li>
-            <li>Giới thiệu máy đổi trả</li>
-          </ul>
-        </div>
-
-        <div class="f2_content2">
-          <h4>CHÍNH SÁCH</h4>
-          <ul>
-            <li>Chính sách bảo hành</li>
-            <li>Chính sách đổi trả</li>
-            <li>Chính sách bảo mật</li>
-            <li>Chính sách trả góp</li>
-          </ul>
-        </div>
-
-        <div class="f2_content3">
-          <h4>LIÊN HỆ</h4>
-          <ul>
-            <li>273 An Dương Vương, Phường 3, Quận 5, TP Hồ Chí Minh</li>
-            <li>01234567890</li>
-            <li>quangkhu@gmail.com</li>
-          </ul>
-        </div>
+      <div class="email">
+        <input type="email" placeholder="Nhập email của bạn" />
+        <button type="submit">Đăng ký</button>
       </div>
+    </div>
+  </div>
 
-      <div class="f3">
-        <p>Copyright 2026 MUIT. All Rights Reserved.</p>
-      </div>
-    </footer>
-  </body>
+  <div class="f2">
+    <div class="f2_content1">
+      <h4>VỀ CHÚNG TÔI</h4>
+      <ul>
+        <li>Giới thiệu về công ty</li>
+        <li>Quy chế hoạt động</li>
+        <li>Dự án Doanh nghiệp</li>
+        <li>Tin tức khuyến mại</li>
+        <li>Giới thiệu máy đổi trả</li>
+      </ul>
+    </div>
+
+    <div class="f2_content2">
+      <h4>CHÍNH SÁCH</h4>
+      <ul>
+        <li>Chính sách bảo hành</li>
+        <li>Chính sách đổi trả</li>
+        <li>Chính sách bảo mật</li>
+        <li>Chính sách trả góp</li>
+      </ul>
+    </div>
+
+    <div class="f2_content3">
+      <h4>LIÊN HỆ</h4>
+      <ul>
+        <li>273 An Dương Vương, Q5, TP.HCM</li>
+        <li>01234567890</li>
+        <li>quangkhu@gmail.com</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="f3">
+    <p>Copyright 2026 MUIT. All Rights Reserved.</p>
+  </div>
+</footer>
+
+</body>
 </html>

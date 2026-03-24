@@ -191,12 +191,12 @@ $user = mysqli_fetch_assoc($result);
 
         <div class="info-row">
           <div class="info-label">Số điện thoại</div>
-          <div class="info-value"><?php echo $user['sdt']; ?></div>
+          <div class="info-value"><?php echo $user['phone']; ?></div>
         </div>
 
         <div class="info-row">
           <div class="info-label">Địa chỉ</div>
-          <div class="info-value"><?php echo $user['diachi']; ?></div>
+          <div class="info-value"><?php echo $user['address']; ?></div>
         </div>
       </div>
 
