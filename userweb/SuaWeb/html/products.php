@@ -14,16 +14,16 @@ $offset = ($page - 1) * $limit;
 
 // ===== QUERY SẢN PHẨM =====
 if ($category > 0) {
-  $sql = "SELECT * FROM products WHERE category_id = $category LIMIT $limit OFFSET $offset";
+  $sql = "SELECT * FROM shop.products WHERE category_id = $category LIMIT $limit OFFSET $offset";
 } else {
-  $sql = "SELECT * FROM products LIMIT $limit OFFSET $offset";
+  $sql = "SELECT * FROM shop.products LIMIT $limit OFFSET $offset";
 }
 $result = mysqli_query($conn, $sql);
 
 // ===== ĐẾM TỔNG =====
 $total_sql = $category > 0 
-  ? "SELECT COUNT(*) as total FROM products WHERE category_id = $category"
-  : "SELECT COUNT(*) as total FROM products";
+  ? "SELECT COUNT(*) as total FROM shop.products WHERE category_id = $category"
+  : "SELECT COUNT(*) as total FROM shop.products";
 
 $total_result = mysqli_query($conn, $total_sql);
 $total_row = mysqli_fetch_assoc($total_result);
@@ -34,7 +34,7 @@ $total_pages = ceil($total_row['total'] / $limit);
 $count = ["total" => 0];
 if ($user_id > 0) {
   $count = mysqli_fetch_assoc(mysqli_query($conn,
-    "SELECT SUM(quantity) as total FROM cart WHERE user_id=$user_id"));
+    "SELECT COUNT(*) as total FROM cart WHERE user_id=$user_id"));
 }
 ?>
 

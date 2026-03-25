@@ -18,9 +18,13 @@
   </button>
 </div>
 
+<!-- Bọc trong form để gửi selected[] sang checkout.php -->
+<form action="checkout.php" method="POST">
+
 <table>
   <thead>
     <tr>
+      <th><input type="checkbox" id="check-all"> Chọn tất cả</th>
       <th>Sản Phẩm</th>
       <th>Đơn Giá</th>
       <th>Số Lượng</th>
@@ -34,19 +38,25 @@
     session_start();
     $user_id = $_SESSION['user_id'];
 
-    $sql = "SELECT cart.id, products.name, products.price, products.image, cart.quantity 
+    $sql = "SELECT cart.id, shop.products.name, shop.products.price, shop.products.image, cart.quantity 
             FROM cart 
-            JOIN products ON cart.product_id = products.id 
+            JOIN shop.products ON cart.product_id = shop.products.id 
             WHERE cart.user_id = $user_id";
 
     $result = mysqli_query($conn, $sql);
-    $total = 0;
 
     while($row = mysqli_fetch_assoc($result)) {
       $thanhtien = $row['price'] * $row['quantity'];
-      $total += $thanhtien;
     ?>
     <tr>
+
+      <td>
+        <!-- Thêm name="selected[]" và value=cart.id -->
+        <input type="checkbox" class="item-check" 
+               name="selected[]"
+               value="<?php echo $row['id']; ?>"
+               data-thanhtien="<?php echo $thanhtien; ?>">
+      </td>
 
       <td class="product-info">
         <img src="../img/<?php echo $row['image']; ?>" />
@@ -66,8 +76,9 @@
       <td><?php echo number_format($thanhtien); ?>₫</td>
 
       <td>
+        <!-- Thêm type="button" để không submit form -->
         <a href="delete_cart.php?id=<?php echo $row['id']; ?>">
-          <button class="delete-btn">Xóa</button>
+          <button class="delete-btn" type="button">Xóa</button>
         </a>
       </td>
 
@@ -77,14 +88,43 @@
 </table>
 
 <div class="total">
-  Tổng cộng: <span><?php echo number_format($total); ?>₫</span>
+  Tổng cộng: <span id="total-display">0₫</span>
 </div>
 
 <div class="checkout">
-  <button onclick="window.location.href='checkout.php'">
-    Tiến hành đặt hàng
-  </button>
+  <!-- Đổi thành type="submit" -->
+  <button type="submit">Tiến hành đặt hàng</button>
 </div>
+
+</form>
+
+<script>
+  function tinhTong() {
+    let total = 0;
+    document.querySelectorAll('.item-check:checked').forEach(cb => {
+      total += parseFloat(cb.dataset.thanhtien);
+    });
+    document.getElementById('total-display').textContent = 
+      total.toLocaleString('vi-VN') + '₫';
+  }
+
+  document.getElementById('check-all').addEventListener('change', function() {
+    document.querySelectorAll('.item-check').forEach(cb => cb.checked = this.checked);
+    tinhTong();
+  });
+
+  document.querySelectorAll('.item-check').forEach(cb => {
+    cb.addEventListener('change', tinhTong);
+  });
+
+  // Chặn submit nếu chưa chọn gì
+  document.querySelector('form').addEventListener('submit', function(e) {
+    if (document.querySelectorAll('.item-check:checked').length === 0) {
+      e.preventDefault();
+      alert('Vui lòng chọn ít nhất 1 sản phẩm!');
+    }
+  });
+</script>
 
 </body>
 </html>

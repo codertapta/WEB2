@@ -71,9 +71,9 @@ if(!$orders){
 
   <?php
   $details = mysqli_query($conn,"
-  SELECT order_details.*, products.name 
+  SELECT order_details.*, shop.products.name 
   FROM order_details 
-  JOIN products ON order_details.product_id = products.id
+  JOIN shop.products ON order_details.product_id = shop.products.id
   WHERE order_id=".$o['id']);
 
   if(!$details){
