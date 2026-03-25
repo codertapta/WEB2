@@ -1,0 +1,294 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Be Vietnam Pro", sans-serif;
+  background: #f5f5f7;
+  color: #1a1a1a;
+  min-height: 100vh;
+}
+
+/* HEADER */
+header {
+  background: #d70018;
+  color: white;
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 2px 12px rgba(215, 0, 24, 0.3);
+}
+
+header h1 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* LAYOUT */
+.container {
+  max-width: 960px;
+  margin: 32px auto;
+  padding: 0 20px;
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 24px;
+  align-items: start;
+}
+
+/* CARD */
+.card {
+  background: white;
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.07);
+}
+
+.card-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #d70018;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 14px;
+  border-bottom: 2px solid #f5f5f7;
+}
+
+/* ĐỊA CHỈ */
+.address-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px;
+  border: 2px solid #eee;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
+}
+
+.address-option:has(input:checked) {
+  border-color: #d70018;
+  background: #fff5f5;
+}
+
+.address-option input[type="radio"] {
+  accent-color: #d70018;
+  margin-top: 3px;
+  width: 16px;
+  height: 16px;
+}
+
+.address-option span {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.new-address-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 2px solid #eee;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  margin-top: 8px;
+  transition: border-color 0.2s;
+  display: none;
+}
+
+.new-address-input:focus {
+  outline: none;
+  border-color: #d70018;
+}
+
+/* THANH TOÁN */
+.payment-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border: 2px solid #eee;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
+}
+
+.payment-option:has(input:checked) {
+  border-color: #d70018;
+  background: #fff5f5;
+}
+
+.payment-option input[type="radio"] {
+  accent-color: #d70018;
+  width: 16px;
+  height: 16px;
+}
+
+.payment-option .pay-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+}
+
+.pay-cod {
+  background: #fff3e0;
+  color: #e65100;
+}
+.pay-bank {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+.pay-online {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.pay-info {
+  flex: 1;
+}
+.pay-info strong {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.pay-info small {
+  font-size: 0.78rem;
+  color: #888;
+}
+
+.bank-detail {
+  background: #f9f9f9;
+  border-left: 3px solid #d70018;
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin: 6px 0 10px 48px;
+  font-size: 0.82rem;
+  color: #555;
+  display: none;
+}
+
+/* BẢNG SẢN PHẨM */
+.order-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.order-table th {
+  text-align: left;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.order-table td {
+  padding: 12px 0;
+  font-size: 0.88rem;
+  border-bottom: 1px solid #f5f5f5;
+  vertical-align: middle;
+}
+
+.order-table td:last-child,
+.order-table th:last-child {
+  text-align: right;
+}
+
+.product-name {
+  font-weight: 600;
+  color: #1a1a1a;
+}
+.product-qty {
+  color: #888;
+  font-size: 0.82rem;
+}
+
+/* TỔNG & NÚT */
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  font-size: 0.88rem;
+  color: #666;
+}
+
+.summary-row.total {
+  border-top: 2px solid #eee;
+  margin-top: 8px;
+  padding-top: 16px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #d70018;
+}
+
+.btn-submit {
+  width: 100%;
+  padding: 15px;
+  background: #d70018;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  margin-top: 20px;
+  transition:
+    background 0.2s,
+    transform 0.1s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-submit:hover {
+  background: #b8001a;
+}
+.btn-submit:active {
+  transform: scale(0.98);
+}
+
+@media (max-width: 700px) {
+  .container {
+    grid-template-columns: 1fr;
+  }
+}
