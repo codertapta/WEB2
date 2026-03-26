@@ -1,6 +1,6 @@
-// ========== ADMIN LOGIN FUNCTIONALITY ==========
 
-// Khởi tạo dữ liệu admin mặc định
+
+
 function initAdminUsers() {
   if (!localStorage.getItem("adminUsers")) {
     localStorage.setItem(
@@ -17,7 +17,7 @@ function initAdminUsers() {
   }
 }
 
-// Xử lý đăng nhập admin
+
 function handleAdminLogin() {
   const loginForm = document.getElementById("adminLoginForm");
   if (!loginForm) return;
@@ -44,7 +44,7 @@ function handleAdminLogin() {
   });
 }
 
-// Khởi tạo khi trang load
+
 document.addEventListener("DOMContentLoaded", function () {
   initAdminUsers();
   handleAdminLogin();
