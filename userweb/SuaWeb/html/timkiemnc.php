@@ -1,37 +1,48 @@
 <?php
-$conn = mysqli_connect("localhost", "root", "", "shop");
+session_start();
+require __DIR__ . "/../../../config.php";
+
+$user_id = $_SESSION['user_id'] ?? 0;
+
+// đếm giỏ hàng
+$count = ["total" => 0];
+if ($user_id > 0) {
+    $result_cart = mysqli_query($conn, "SELECT COUNT(*) as total FROM cart WHERE user_id=$user_id");
+    $count = mysqli_fetch_assoc($result_cart);
+}
+
+// chuyển sang database shop
+mysqli_select_db($conn, "shop");
 
 // ===== LẤY DỮ LIỆU TÌM KIẾM =====
-$keyword = isset($_GET['ten']) ? $_GET['ten'] : '';
-$category = isset($_GET['loai']) ? (int)$_GET['loai'] : 0;
-$giatu = isset($_GET['giatu']) ? (int)$_GET['giatu'] : 0;
-$giaden = isset($_GET['giaden']) ? (int)$_GET['giaden'] : 0;
+$keyword  = isset($_GET['ten'])   ? $_GET['ten']        : '';
+$category = isset($_GET['loai'])  ? (int)$_GET['loai']  : 0;
+$giatu    = isset($_GET['giatu']) ? (int)$_GET['giatu'] : 0;
+$giaden   = isset($_GET['giaden'])? (int)$_GET['giaden']: 0;
 
 $keyword = mysqli_real_escape_string($conn, $keyword);
 
 // ===== PHÂN TRANG =====
-$limit = 8;
-$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$limit  = 8;
+$page   = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 if ($page < 1) $page = 1;
 $offset = ($page - 1) * $limit;
 
 // ===== XÂY DỰNG CÂU SQL =====
 $where = "WHERE 1";
-if ($keyword != '') $where .= " AND name LIKE '%$keyword%'";
-if ($category > 0) $where .= " AND category_id = $category";
-if ($giatu > 0) $where .= " AND price >= $giatu";
-if ($giaden > 0) $where .= " AND price <= $giaden";
+if ($keyword  != '') $where .= " AND name LIKE '%$keyword%'";
+if ($category  > 0)  $where .= " AND category_id = $category";
+if ($giatu     > 0)  $where .= " AND price >= $giatu";
+if ($giaden    > 0)  $where .= " AND price <= $giaden";
 
-$sql = "SELECT * FROM products $where LIMIT $limit OFFSET $offset";
+$sql    = "SELECT * FROM products $where LIMIT $limit OFFSET $offset";
 $result = mysqli_query($conn, $sql);
 
-$total_sql = "SELECT COUNT(*) as total FROM products $where";
-$total_result = mysqli_query($conn, $total_sql);
-$total_row = mysqli_fetch_assoc($total_result);
+$total_result   = mysqli_query($conn, "SELECT COUNT(*) as total FROM products $where");
+$total_row      = mysqli_fetch_assoc($total_result);
 $total_products = $total_row['total'];
-$total_pages = ceil($total_products / $limit);
+$total_pages    = ceil($total_products / $limit);
 
-// Phân loại map
 $categories = [1 => 'Laptop AI', 2 => 'Laptop Gaming', 3 => 'Laptop mỏng nhẹ'];
 ?>
 
@@ -42,8 +53,7 @@ $categories = [1 => 'Laptop AI', 2 => 'Laptop Gaming', 3 => 'Laptop mỏng nhẹ
     <meta charset="UTF-8">
     <title>Tìm kiếm sản phẩm - MUIT</title>
     <link rel="stylesheet" href="../css/style.css">
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body>
@@ -51,7 +61,7 @@ $categories = [1 => 'Laptop AI', 2 => 'Laptop Gaming', 3 => 'Laptop mỏng nhẹ
     <!-- ===== HEADER ===== -->
     <header class="header">
         <div class="logo-section">
-            <a href="#" class="logo">
+            <a href="products.php" class="logo">
                 <img src="../img/logo.png">
             </a>
             <a href="#" class="logo-text">MUIT</a>
@@ -75,9 +85,18 @@ $categories = [1 => 'Laptop AI', 2 => 'Laptop Gaming', 3 => 'Laptop mỏng nhẹ
         </div>
 
         <div class="right-icons">
-            <a href="profile.html" class="icon-link"><i class="fas fa-user"></i></a>
-            <a href="giohang.html" class="icon-link"><i class="fas fa-shopping-cart"></i></a>
-            <a href="donhangdadat.html" class="icon-link"><i class="fas fa-receipt"></i></a>
+            <a href="profile.php" class="icon-link" title="Tài khoản">
+                <i class="fas fa-user"></i>
+            </a>
+            <a href="cart.php" class="icon-link">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="cart-count">
+                    <?php echo $count['total'] ? $count['total'] : 0; ?>
+                </span>
+            </a>
+            <a href="orders.php" class="icon-link" title="Đơn hàng của tôi">
+                <i class="fas fa-receipt"></i>
+            </a>
         </div>
     </header>
 
@@ -113,7 +132,6 @@ $categories = [1 => 'Laptop AI', 2 => 'Laptop Gaming', 3 => 'Laptop mỏng nhẹ
                         <label>Giá từ:</label>
                         <input type="number" name="giatu" value="<?= $giatu ?>" />
                     </div>
-
                     <div class="den">
                         <label>Giá đến:</label>
                         <input type="number" name="giaden" value="<?= $giaden ?>" />
@@ -124,7 +142,6 @@ $categories = [1 => 'Laptop AI', 2 => 'Laptop Gaming', 3 => 'Laptop mỏng nhẹ
                     <button type="submit">Tìm kiếm</button>
                     <button type="reset">Đặt lại</button>
                 </div>
-
             </section>
         </form>
 
@@ -138,8 +155,13 @@ $categories = [1 => 'Laptop AI', 2 => 'Laptop Gaming', 3 => 'Laptop mỏng nhẹ
                         <p>Giá: <?= number_format($row['price']) ?> VND</p>
                         <p>Phân loại: <?= $categories[$row['category_id']] ?></p>
                         <div class="product-actions">
-                            <a href="#" class="buy-now-link">Mua ngay</a>
-                            <a href="#" class="add-to-cart"><i class="fas fa-cart-plus"></i></a>
+                            <!-- Mua ngay -->
+                            <a href="checkout.php?id=<?= $row['id'] ?>&qty=1" class="buy-now-link">Mua ngay</a>
+                            <!-- Thêm giỏ hàng -->
+                            <a href="add_to_cart.php?id=<?= $row['id'] ?>&qty=1" class="add-to-cart">
+                                <i class="fas fa-cart-plus"></i>
+                            </a>
+                            <!-- Xem chi tiết -->
                             <a href="product_detail.php?id=<?= $row['id'] ?>" class="view-detail">
                                 <i class="fas fa-eye"></i> Xem chi tiết
                             </a>
@@ -153,31 +175,24 @@ $categories = [1 => 'Laptop AI', 2 => 'Laptop Gaming', 3 => 'Laptop mỏng nhẹ
 
         <!-- ===== PHÂN TRANG ===== -->
         <div class="product-pagination">
-
-            <!-- nút prev -->
             <?php if ($page > 1) { ?>
                 <a class="page prev" href="?page=<?= $page - 1 ?>&ten=<?= $keyword ?>&loai=<?= $category ?>&giatu=<?= $giatu ?>&giaden=<?= $giaden ?>">&lt;</a>
             <?php } ?>
 
-            <!-- số trang (chỉ hiển thị ±2 trang quanh hiện tại) -->
             <?php
             $start = max(1, $page - 2);
-            $end = min($total_pages, $page + 2);
-
+            $end   = min($total_pages, $page + 2);
             for ($i = $start; $i <= $end; $i++) {
                 $active = ($i == $page) ? "active" : "";
             ?>
                 <a class="page <?= $active ?>" href="?page=<?= $i ?>&ten=<?= $keyword ?>&loai=<?= $category ?>&giatu=<?= $giatu ?>&giaden=<?= $giaden ?>"><?= $i ?></a>
             <?php } ?>
 
-            <!-- nút next -->
             <?php if ($page < $total_pages) { ?>
                 <a class="page next" href="?page=<?= $page + 1 ?>&ten=<?= $keyword ?>&loai=<?= $category ?>&giatu=<?= $giatu ?>&giaden=<?= $giaden ?>">&gt;</a>
             <?php } ?>
-
         </div>
-
     </main>
-</body>
 
+</body>
 </html>

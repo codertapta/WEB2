@@ -1,28 +1,27 @@
-
 <?php
 session_start();
 require __DIR__ . "/../../../config.php";
 
 $user_id = $_SESSION['user_id'] ?? 0;
 
-// đếm giỏ hàng
 $count = ["total" => 0];
 if ($user_id > 0) {
-  $result = mysqli_query($conn, "SELECT COUNT(*) as total FROM cart WHERE user_id=$user_id");
-  $count = mysqli_fetch_assoc($result);
+    $result = mysqli_query($conn, "SELECT COUNT(*) as total FROM cart WHERE user_id=$user_id");
+    $count = mysqli_fetch_assoc($result);
 }
-$conn = mysqli_connect("localhost", "root", "", "shop");
+
+mysqli_select_db($conn, "shop");
 
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-
-$sql = "SELECT * FROM products WHERE id = $id";
-$result = mysqli_query($conn, $sql);
+$result = mysqli_query($conn, "SELECT * FROM products WHERE id = $id");
 $product = mysqli_fetch_assoc($result);
 
 if (!$product) {
     echo "Không tìm thấy sản phẩm";
     exit;
 }
+
+$categories = [1 => 'Laptop AI', 2 => 'Laptop Gaming', 3 => 'Laptop mỏng nhẹ'];
 ?>
 
 <!DOCTYPE html>
@@ -56,10 +55,10 @@ if (!$product) {
         </nav>
 
         <div class="search-and-hotline">
-            <div class="search-container">
-                <input type="text" placeholder="Tìm kiếm sản phẩm...">
-                <button>Tìm</button>
-            </div>
+            <form action="timkiemnc.php" method="get" class="search-container">
+              <input type="text" name="ten" placeholder="Tìm kiếm sản phẩm...">
+              <button type="submit">Tìm</button>
+            </form>
             <div class="hotline">Hotline:19001234</div>
         </div>
 
@@ -67,12 +66,12 @@ if (!$product) {
             <a href="profile.php" class="icon-link" title="Tài khoản">
                 <i class="fas fa-user"></i>
             </a>
-             <a href="cart.php" class="icon-link">
-      <i class="fas fa-shopping-cart"></i>
-      <span class="cart-count">
-        <?php echo $count['total'] ? $count['total'] : 0; ?>
-      </span>
-    </a>
+            <a href="cart.php" class="icon-link">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="cart-count">
+                    <?php echo $count['total'] ? $count['total'] : 0; ?>
+                </span>
+            </a>
             <a href="orders.php" class="icon-link" title="Đơn hàng của tôi">
                 <i class="fas fa-receipt"></i>
             </a>
@@ -98,6 +97,13 @@ if (!$product) {
                 </span>
             </div>
 
+            <p class="product-category">
+                <span class="category-label">Loại:</span>
+                <span class="category-value">
+                    <?= $categories[$product['category_id']] ?? 'Khác' ?>
+                </span>
+            </p>
+
             <p class="product-short-desc">
                 <?= $product['description'] ?? 'Chưa có mô tả sản phẩm' ?>
             </p>
@@ -107,9 +113,9 @@ if (!$product) {
 
                 <input type="number" value="1" min="1" class="quantity-input" id="qty-input" />
 
-                <a href="add_to_cart.php?id=<?php echo $row['id']; ?>" class="add-to-cart">
-            <i class="fas fa-cart-plus"></i>
-          </a>
+                <button class="add-to-cart" id="add-to-cart-btn">
+                    <i class="fas fa-cart-plus"></i>
+                </button>
 
                 <button class="buy-now-btn" id="buy-now-btn">
                     Mua Ngay
@@ -161,6 +167,11 @@ if (!$product) {
     </div>
 
     <script>
+        document.getElementById('add-to-cart-btn').addEventListener('click', function () {
+            const qty = document.getElementById('qty-input').value || 1;
+            window.location.href = 'add_to_cart.php?id=<?= $product['id'] ?>&qty=' + qty;
+        });
+
         document.getElementById('buy-now-btn').addEventListener('click', function () {
             const qty = document.getElementById('qty-input').value || 1;
             window.location.href = 'checkout.php?id=<?= $product['id'] ?>&qty=' + qty;

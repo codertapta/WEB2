@@ -1,4 +1,3 @@
-
 <?php 
 require __DIR__ . "/../../../config.php";
 session_start();
@@ -28,7 +27,6 @@ $total_sql = $category > 0
 
 $total_result = mysqli_query($conn, $total_sql);
 $total_row = mysqli_fetch_assoc($total_result);
-
 $total_pages = ceil($total_row['total'] / $limit);
 
 // ===== ĐẾM GIỎ HÀNG =====
@@ -37,6 +35,9 @@ if ($user_id > 0) {
   $count = mysqli_fetch_assoc(mysqli_query($conn,
     "SELECT COUNT(*) as total FROM cart WHERE user_id=$user_id"));
 }
+
+// ===== DANH MỤC =====
+$categories = [1 => 'Laptop AI', 2 => 'Laptop Gaming', 3 => 'Laptop mỏng nhẹ'];
 ?>
 
 <!doctype html>
@@ -44,11 +45,8 @@ if ($user_id > 0) {
 <head>
   <meta charset="UTF-8">
   <title>MUIT</title>
-
   <link rel="stylesheet" href="../css/style.css">
-
-  <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body>
@@ -83,14 +81,12 @@ if ($user_id > 0) {
     <a href="profile.php" class="icon-link">
       <i class="fas fa-user"></i>
     </a>
-
     <a href="cart.php" class="icon-link">
       <i class="fas fa-shopping-cart"></i>
       <span class="cart-count">
         <?php echo $count['total'] ? $count['total'] : 0; ?>
       </span>
     </a>
-
     <a href="orders.php" class="icon-link">
       <i class="fas fa-receipt"></i>
     </a>
@@ -106,24 +102,18 @@ if ($user_id > 0) {
         <img src="../img/<?php echo $row['image']; ?>">
         <h3><?php echo $row['name']; ?></h3>
         <p>Giá: <?php echo number_format($row['price']); ?> VND</p>
+        <p>Loại: <?php echo $categories[$row['category_id']] ?? 'Khác'; ?></p>
 
         <div class="product-actions">
-
-          <!-- MUA NGAY -->
           <a href="checkout.php?id=<?php echo $row['id']; ?>" class="buy-now-link">
             Mua ngay
           </a>
-
-          <!-- THÊM GIỎ -->
-          <a href="add_to_cart.php?id=<?php echo $row['id']; ?>" class="add-to-cart">
+          <a href="add_to_cart.php?id=<?php echo $row['id']; ?>&qty=1" class="add-to-cart">
             <i class="fas fa-cart-plus"></i>
           </a>
-
-          <!-- CHI TIẾT -->
           <a href="product_detail.php?id=<?php echo $row['id']; ?>" class="view-detail">
             <i class="fas fa-eye"></i> Xem chi tiết
           </a>
-
         </div>
       </div>
     <?php } ?>
@@ -140,7 +130,6 @@ if ($user_id > 0) {
     <?php
     $start = max(1, $page - 2);
     $end = min($total_pages, $page + 2);
-
     for ($i = $start; $i <= $end; $i++) {
       $active = ($i == $page) ? "active" : "";
     ?>
