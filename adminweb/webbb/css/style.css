@@ -319,6 +319,16 @@ td img {
   color: #166534;
 }
 
+.status-active {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-hidden {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
 /* ===== BUTTONS ===== */
 button,
 .btn-save,
@@ -419,6 +429,7 @@ button,
   font-size: 14px;
   letter-spacing: 0.3px;
   box-shadow: 0 3px 8px rgba(220, 38, 38, 0.2);
+  text-decoration: none;
 }
 
 .head:hover {
@@ -574,9 +585,11 @@ select.input-field {
   backdrop-filter: blur(3px);
   display: none;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
+  padding: 40px 0;
   z-index: 999;
   animation: fadeIn 0.3s ease;
+  overflow-y: auto;
 }
 
 :target.popup-overlay {
@@ -639,12 +652,295 @@ select.input-field {
   }
 }
 
-.status-active {
+/* ===== THÔNG BÁO (import.php) ===== */
+.msg {
+  padding: 10px 16px;
+  border-radius: 6px;
+  margin-bottom: 14px;
+  font-weight: 600;
+}
+
+.msg.success {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.msg.error {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+/* ===== NHẬP HÀNG — DÒNG SẢN PHẨM ===== */
+.product-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.product-row select,
+.product-row input {
+  flex: 1;
+}
+
+.product-row .btn-remove {
+  flex: 0 0 30px;
+  background: #e74c3c;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px 0;
+  text-align: center;
+}
+
+.product-row .btn-remove:hover {
+  background: #c0392b;
+}
+
+/* ===== NÚT THÊM DÒNG SẢN PHẨM ===== */
+#btn-add-row {
+  background: #27ae60;
+  color: #fff;
+  border: none;
+  padding: 7px 14px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-bottom: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+#btn-add-row:hover {
+  background: #1e8449;
+}
+
+/* ===== POPUP CHI TIẾT ===== */
+.detail-info p {
+  margin: 4px 0;
+}
+
+.total-box p {
+  margin: 4px 0;
+  font-size: 15px;
+}
+
+/* ===== THANH TÌM KIẾM ĐƠN HÀNG ===== */
+.search-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.search-bar label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+  white-space: nowrap;
+}
+
+.search-bar .input-field {
+  width: auto;
+  flex: 1;
+  min-width: 130px;
+}
+
+/* ===== THÔNG BÁO (dùng chung) ===== */
+.msg {
+  padding: 10px 16px;
+  border-radius: 6px;
+  margin-bottom: 14px;
+  font-weight: 600;
+}
+
+.msg.success {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.msg.error {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+/* ===== FORM LƯỚI 2 CỘT (products.php) ===== */
+.product-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 16px;
+  margin-bottom: 8px;
+}
+
+.product-form-grid label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+  display: block;
+  margin-top: 8px;
+}
+
+/* ===== NHÃN BẮT BUỘC ===== */
+.required {
+  color: #dc2626;
+  font-size: 14px;
+}
+
+/* ===== INVENTORY — bổ sung vào cuối file style.css ===== */
+
+/* Thanh tóm tắt tồn kho */
+.inv-summary-bar {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.inv-summary-card {
+  flex: 1;
+  min-width: 160px;
+  background: #fff;
+  border-radius: 10px;
+  padding: 16px 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-left: 4px solid #dc2626;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transition: all 0.3s ease;
+}
+
+.inv-summary-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.15);
+}
+
+.inv-summary-card .ico {
+  font-size: 28px;
+}
+
+.inv-summary-card .lbl {
+  font-size: 13px;
+  color: #666;
+}
+
+.inv-summary-card .val {
+  font-size: 22px;
+  font-weight: 700;
+  color: #dc2626;
+}
+
+/* Badge số lượng nhập/xuất trong bảng thời gian */
+.qty-badge {
+  display: inline-block;
+  min-width: 36px;
+  text-align: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+/* Flash message (thông báo sau POST) */
+.flash-msg {
+  padding: 12px 18px;
+  border-radius: 8px;
+  margin-bottom: 18px;
+  font-weight: 600;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.flash-msg.success {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.flash-msg.error {
+  background: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+/* Nút Xuất hàng (màu vàng cam) — dùng class .unlock đã có */
+/* đã có sẵn trong style.css */
+/* ===== PRICE — bổ sung vào cuối file style.css ===== */
+
+/* Thanh tìm kiếm giá bán */
+.price-search {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.price-search .input-field {
+  width: auto;
+  flex: 1;
+  min-width: 150px;
+}
+
+/* Ô xem trước giá bán trong popup */
+.price-preview-box {
+  background: #fff7f7;
+  border: 1.5px solid #fecaca;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin: 8px 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.price-preview-box .preview-label {
+  font-size: 13px;
+  color: #666;
+  white-space: nowrap;
+}
+
+.price-preview-box .preview-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #dc2626;
+}
+
+/* Badge lợi nhuận trong bảng */
+.profit-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
   background: #dcfce7;
   color: #166534;
 }
 
-.status-hidden {
-  background: #fee2e2;
-  color: #dc2626;
+.profit-badge.zero {
+  background: #f3f4f6;
+  color: #9ca3af;
+}
+
+/* Readonly field style */
+.input-field[readonly] {
+  background: #f9fafb;
+  color: #555;
+  cursor: default;
+}
+
+/* Ghi chú giá vốn bình quân */
+.cost-note {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 2px;
+  font-style: italic;
 }
