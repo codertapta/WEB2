@@ -1,13 +1,11 @@
 <?php
 session_start();
 
-// Nếu đã login rồi thì chuyển thẳng tới dashboard
 if (isset($_SESSION['adminLoggedIn']) && $_SESSION['adminLoggedIn'] === true) {
     header("Location: index.php");
     exit;
 }
 
-// Lấy lỗi nếu có
 $loginError = $_SESSION['loginError'] ?? '';
 unset($_SESSION['loginError']);
 ?>

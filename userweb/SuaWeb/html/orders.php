@@ -26,7 +26,12 @@
 
   <?php
   session_start();
-  $user_id = $_SESSION['user_id'];
+  $user_id = $_SESSION['user_id'] ?? 0;
+
+  if ($user_id == 0) {
+      header("Location: login.php");
+      exit;
+  }
 
   $orders = mysqli_query($conn, "
     SELECT * FROM orders 
@@ -36,12 +41,12 @@
 
   if (!$orders) die("Lỗi: " . mysqli_error($conn));
 
-  // Map status → hiển thị
   $status_map = [
-    'pending'   => ['label' => 'Chờ xác nhận', 'class' => 'status-pending',   'icon' => 'fa-clock'],
-    'confirmed' => ['label' => 'Đã xác nhận',  'class' => 'status-confirmed', 'icon' => 'fa-check-circle'],
-    'delivered' => ['label' => 'Đã nhận hàng', 'class' => 'status-delivered', 'icon' => 'fa-box-open'],
-    'cancelled' => ['label' => 'Đã hủy',       'class' => 'status-cancelled', 'icon' => 'fa-times-circle'],
+    'pending'    => ['label' => 'Chờ xác nhận', 'class' => 'status-pending',   'icon' => 'fa-clock'],
+    'processing' => ['label' => 'Đang xử lý',   'class' => 'status-pending',   'icon' => 'fa-spinner'],
+    'confirmed'  => ['label' => 'Đã xác nhận',  'class' => 'status-confirmed', 'icon' => 'fa-check-circle'],
+    'delivered'  => ['label' => 'Đã nhận hàng', 'class' => 'status-delivered', 'icon' => 'fa-box-open'],
+    'cancelled'  => ['label' => 'Đã hủy',       'class' => 'status-cancelled', 'icon' => 'fa-times-circle'],
   ];
   ?>
 
@@ -58,17 +63,16 @@
       $pay = $o['payment_method'] ?? 'cod';
       $pay_label = match($pay) {
         'bank'   => ['class' => 'pay-bank',   'icon' => 'fa-university', 'text' => 'Chuyển khoản'],
-        'online' => ['class' => 'pay-online',  'icon' => 'fa-mobile-alt', 'text' => 'Thanh toán online'],
-        default  => ['class' => 'pay-cod',     'icon' => 'fa-truck',      'text' => 'COD'],
+        'online' => ['class' => 'pay-online', 'icon' => 'fa-mobile-alt', 'text' => 'Thanh toán online'],
+        default  => ['class' => 'pay-cod',    'icon' => 'fa-truck',      'text' => 'COD'],
       };
 
-      $status     = $o['status'] ?? 'pending';
+      $status      = $o['status'] ?? 'pending';
       $status_info = $status_map[$status] ?? $status_map['pending'];
     ?>
 
     <div class="order-card" style="animation-delay:<?php echo $delay; ?>ms">
 
-      <!-- Đầu card -->
       <div class="order-head">
         <div class="order-head-left">
           <div class="order-icon"><i class="fas fa-box"></i></div>
@@ -82,25 +86,22 @@
         </div>
 
         <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:flex-end">
-          <!-- BADGE TRẠNG THÁI -->
           <span class="status-badge <?php echo $status_info['class']; ?>">
             <i class="fas <?php echo $status_info['icon']; ?>"></i>
             <?php echo $status_info['label']; ?>
           </span>
-
           <div class="order-total-badge">
             <?php echo number_format($o['total_price']); ?>₫
           </div>
         </div>
       </div>
 
-      <!-- Meta -->
       <div class="order-meta">
         <div class="meta-item">
           <i class="fas fa-map-marker-alt icon-addr"></i>
           <div>
             <div style="font-size:11px;margin-bottom:2px">Địa chỉ giao</div>
-            <div class="meta-val" style="font-size:13px"><?php echo htmlspecialchars($o['address']); ?></div>
+            <div class="meta-val" style="font-size:13px"><?php echo htmlspecialchars($o['address'] ?? 'Chưa có địa chỉ'); ?></div>
           </div>
         </div>
         <div class="meta-item">
@@ -115,15 +116,14 @@
         </div>
       </div>
 
-      <!-- Sản phẩm -->
       <div class="order-products">
         <div class="products-label">Chi tiết sản phẩm</div>
 
         <?php
         $details = mysqli_query($conn, "
-          SELECT order_details.*, shop.products.name 
+          SELECT order_details.*, products.name 
           FROM order_details 
-          JOIN shop.products ON order_details.product_id = shop.products.id
+          JOIN products ON order_details.product_id = products.id
           WHERE order_id = " . (int)$o['id']);
         ?>
 
@@ -142,7 +142,6 @@
         </div>
         <?php endwhile; ?>
 
-        <!-- NÚT ĐÃ NHẬN HÀNG: chỉ hiện khi status = confirmed -->
         <?php if ($status === 'confirmed'): ?>
         <form action="update_order_status.php" method="POST" class="confirm-form">
           <input type="hidden" name="order_id" value="<?php echo $o['id']; ?>">

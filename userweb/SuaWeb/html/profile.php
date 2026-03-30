@@ -2,11 +2,15 @@
 session_start();
 include("../../../config.php");
 
-$user_id = $_SESSION['user_id'];
+$user_id = $_SESSION['user_id'] ?? 0;
 
-$sql = "SELECT * FROM users WHERE id = $user_id";
-$result = mysqli_query($conn, $sql);
-$user = mysqli_fetch_assoc($result);
+if ($user_id == 0) {
+    header("Location: login.php");
+    exit;
+}
+
+$result = mysqli_query($conn, "SELECT * FROM users WHERE id = $user_id");
+$user   = mysqli_fetch_assoc($result);
 ?>
 <!doctype html>
 <html lang="vi">
@@ -31,8 +35,6 @@ $user = mysqli_fetch_assoc($result);
       height: 100vh;
     }
 
-    /* CARD PROFILE */
-
     .profile-container {
       width: 420px;
       background: white;
@@ -40,8 +42,6 @@ $user = mysqli_fetch_assoc($result);
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
       padding: 30px;
     }
-
-    /* HEADER */
 
     .profile-header {
       text-align: center;
@@ -71,8 +71,6 @@ $user = mysqli_fetch_assoc($result);
       color: #333;
     }
 
-    /* AVATAR */
-
     .avatar {
       display: flex;
       justify-content: center;
@@ -85,8 +83,6 @@ $user = mysqli_fetch_assoc($result);
       border-radius: 50%;
       border: 3px solid #e60023;
     }
-
-    /* INFO */
 
     .info {
       margin-top: 10px;
@@ -107,8 +103,6 @@ $user = mysqli_fetch_assoc($result);
     .info-value {
       color: #333;
     }
-
-    /* BUTTONS */
 
     .buttons {
       margin-top: 25px;
@@ -171,7 +165,6 @@ $user = mysqli_fetch_assoc($result);
         <img src="../img/logo.png" />
         <span>MUIT STORE</span>
       </div>
-
       <h2>Hồ sơ cá nhân</h2>
     </div>
 
@@ -182,22 +175,22 @@ $user = mysqli_fetch_assoc($result);
     <div class="info">
       <div class="info-row">
         <div class="info-label">Họ</div>
-        <div class="info-value"><?php echo $user['ho']; ?></div>
+        <div class="info-value"><?php echo htmlspecialchars($user['ho']); ?></div>
       </div>
 
       <div class="info-row">
         <div class="info-label">Tên</div>
-        <div class="info-value"><?php echo $user['ten']; ?></div>
+        <div class="info-value"><?php echo htmlspecialchars($user['ten']); ?></div>
       </div>
 
       <div class="info-row">
         <div class="info-label">Số điện thoại</div>
-        <div class="info-value"><?php echo $user['sdt']; ?></div>
+        <div class="info-value"><?php echo htmlspecialchars($user['sdt']); ?></div>
       </div>
 
       <div class="info-row">
         <div class="info-label">Địa chỉ</div>
-        <div class="info-value"><?php echo $user['diachi']; ?></div>
+        <div class="info-value"><?php echo htmlspecialchars($user['diachi']); ?></div>
       </div>
     </div>
 
@@ -205,7 +198,6 @@ $user = mysqli_fetch_assoc($result);
       <a href="products.php" class="btn btn-main">
         Quay lại trang sản phẩm
       </a>
-
       <a href="edit-profile.php" class="btn btn-secondary">
         Chỉnh sửa thông tin
       </a>

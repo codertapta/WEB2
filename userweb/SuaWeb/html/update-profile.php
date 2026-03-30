@@ -9,12 +9,11 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-$ho = $_POST['ho'];
-$ten = $_POST['ten'];
-$sdt = $_POST['sdt'];
+$ho     = $_POST['ho'];
+$ten    = $_POST['ten'];
+$sdt    = $_POST['sdt'];
 $diachi = $_POST['diachi'];
 
-// Cập nhật dữ liệu vào database
 $sql = "UPDATE users SET ho='$ho', ten='$ten', sdt='$sdt', diachi='$diachi' WHERE id=$user_id";
 
 if (mysqli_query($conn, $sql)) {

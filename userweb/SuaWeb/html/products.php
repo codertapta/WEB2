@@ -14,16 +14,16 @@ $offset = ($page - 1) * $limit;
 
 // ===== QUERY SẢN PHẨM =====
 if ($category > 0) {
-  $sql = "SELECT * FROM shop.products WHERE category_id = $category LIMIT $limit OFFSET $offset";
+  $sql = "SELECT * FROM products WHERE category_id = $category LIMIT $limit OFFSET $offset";
 } else {
-  $sql = "SELECT * FROM shop.products LIMIT $limit OFFSET $offset";
+  $sql = "SELECT * FROM products LIMIT $limit OFFSET $offset";
 }
 $result = mysqli_query($conn, $sql);
 
 // ===== ĐẾM TỔNG =====
 $total_sql = $category > 0 
-  ? "SELECT COUNT(*) as total FROM shop.products WHERE category_id = $category"
-  : "SELECT COUNT(*) as total FROM shop.products";
+  ? "SELECT COUNT(*) as total FROM products WHERE category_id = $category"
+  : "SELECT COUNT(*) as total FROM products";
 
 $total_result = mysqli_query($conn, $total_sql);
 $total_row = mysqli_fetch_assoc($total_result);
@@ -42,6 +42,7 @@ $categories = [1 => 'Laptop AI', 2 => 'Laptop Gaming', 3 => 'Laptop mỏng nhẹ
 
 <!doctype html>
 <html lang="vi">
+
 <head>
   <meta charset="UTF-8">
   <title>MUIT</title>
@@ -51,7 +52,6 @@ $categories = [1 => 'Laptop AI', 2 => 'Laptop Gaming', 3 => 'Laptop mỏng nhẹ
 
 <body>
 
-<!-- HEADER -->
 <header class="header">
   <div class="logo-section">
     <a href="products.php" class="logo">
@@ -81,37 +81,40 @@ $categories = [1 => 'Laptop AI', 2 => 'Laptop Gaming', 3 => 'Laptop mỏng nhẹ
     <a href="profile.php" class="icon-link">
       <i class="fas fa-user"></i>
     </a>
+
     <a href="cart.php" class="icon-link">
       <i class="fas fa-shopping-cart"></i>
       <span class="cart-count">
-        <?php echo $count['total'] ? $count['total'] : 0; ?>
+        <?= $count['total'] ? $count['total'] : 0; ?>
       </span>
     </a>
+
     <a href="orders.php" class="icon-link">
       <i class="fas fa-receipt"></i>
     </a>
   </div>
 </header>
 
-<!-- MAIN -->
 <main>
   <div class="product-grid">
 
     <?php while ($row = mysqli_fetch_assoc($result)) { ?>
       <div class="product-item">
-        <img src="../img/<?php echo $row['image']; ?>">
-        <h3><?php echo $row['name']; ?></h3>
-        <p>Giá: <?php echo number_format($row['price']); ?> VND</p>
-        <p>Loại: <?php echo $categories[$row['category_id']] ?? 'Khác'; ?></p>
+        <img src="../img/<?= $row['image']; ?>">
+        <h3><?= $row['name']; ?></h3>
+        <p>Giá: <?= number_format($row['price']); ?> VND</p>
+        <p>Loại: <?= $categories[$row['category_id']] ?? 'Khác'; ?></p>
 
         <div class="product-actions">
-          <a href="checkout.php?id=<?php echo $row['id']; ?>" class="buy-now-link">
+          <a href="checkout.php?id=<?= $row['id']; ?>" class="buy-now-link">
             Mua ngay
           </a>
-          <a href="add_to_cart.php?id=<?php echo $row['id']; ?>&qty=1" class="add-to-cart">
+
+          <a href="add_to_cart.php?id=<?= $row['id']; ?>&qty=1" class="add-to-cart">
             <i class="fas fa-cart-plus"></i>
           </a>
-          <a href="product_detail.php?id=<?php echo $row['id']; ?>" class="view-detail">
+
+          <a href="product_detail.php?id=<?= $row['id']; ?>" class="view-detail">
             <i class="fas fa-eye"></i> Xem chi tiết
           </a>
         </div>
@@ -120,7 +123,6 @@ $categories = [1 => 'Laptop AI', 2 => 'Laptop Gaming', 3 => 'Laptop mỏng nhẹ
 
   </div>
 
-  <!-- PAGINATION -->
   <div class="product-pagination">
 
     <?php if ($page > 1) { ?>
@@ -143,7 +145,6 @@ $categories = [1 => 'Laptop AI', 2 => 'Laptop Gaming', 3 => 'Laptop mỏng nhẹ
   </div>
 </main>
 
-<!-- FOOTER -->
 <footer>
   <div class="f3">
     <p>Copyright 2026 MUIT. All Rights Reserved.</p>

@@ -11,14 +11,11 @@ if ($user_id > 0) {
     $count = mysqli_fetch_assoc($result_cart);
 }
 
-// chuyển sang database shop
-mysqli_select_db($conn, "shop");
-
 // ===== LẤY DỮ LIỆU TÌM KIẾM =====
-$keyword  = isset($_GET['ten'])   ? $_GET['ten']        : '';
-$category = isset($_GET['loai'])  ? (int)$_GET['loai']  : 0;
-$giatu    = isset($_GET['giatu']) ? (int)$_GET['giatu'] : 0;
-$giaden   = isset($_GET['giaden'])? (int)$_GET['giaden']: 0;
+$keyword  = isset($_GET['ten'])    ? $_GET['ten']        : '';
+$category = isset($_GET['loai'])   ? (int)$_GET['loai']  : 0;
+$giatu    = isset($_GET['giatu'])  ? (int)$_GET['giatu'] : 0;
+$giaden   = isset($_GET['giaden']) ? (int)$_GET['giaden']: 0;
 
 $keyword = mysqli_real_escape_string($conn, $keyword);
 
@@ -155,13 +152,10 @@ $categories = [1 => 'Laptop AI', 2 => 'Laptop Gaming', 3 => 'Laptop mỏng nhẹ
                         <p>Giá: <?= number_format($row['price']) ?> VND</p>
                         <p>Phân loại: <?= $categories[$row['category_id']] ?></p>
                         <div class="product-actions">
-                            <!-- Mua ngay -->
                             <a href="checkout.php?id=<?= $row['id'] ?>&qty=1" class="buy-now-link">Mua ngay</a>
-                            <!-- Thêm giỏ hàng -->
                             <a href="add_to_cart.php?id=<?= $row['id'] ?>&qty=1" class="add-to-cart">
                                 <i class="fas fa-cart-plus"></i>
                             </a>
-                            <!-- Xem chi tiết -->
                             <a href="product_detail.php?id=<?= $row['id'] ?>" class="view-detail">
                                 <i class="fas fa-eye"></i> Xem chi tiết
                             </a>
