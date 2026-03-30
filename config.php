@@ -2,7 +2,7 @@
 $servername = "localhost";
 $username = "root";
 $password = "";
-$dbname = "project_web_data"; // tên database của bạn
+$dbname = "shop"; // tên database của bạn
 
 
 $conn = mysqli_connect($servername,$username,$password,$dbname);
