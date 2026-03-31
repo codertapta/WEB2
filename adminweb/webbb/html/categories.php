@@ -126,10 +126,10 @@ $result = $conn->query($sql);
             <a href="./customers.php" class="menu-item"><span>👥</span> Quản Lý Khách Hàng</a>
             <a href="categories.php" class="menu-item active"><span>📂</span> Loại Sản Phẩm</a>
             <a href="./products.php" class="menu-item"><span>💻</span> Danh Mục Sản Phẩm</a>
-            <a href="import.html" class="menu-item"><span>🚚</span> Quản Lý Nhập Hàng</a>
-            <a href="price.html" class="menu-item"><span>🏷️</span> Quản Lý Giá Bán</a>
-            <a href="orders.html" class="menu-item"><span>🛒</span> Quản Lý Đơn Hàng</a>
-            <a href="inventory.html" class="menu-item"><span>📦</span> Quản Lý Tồn Kho</a>
+            <a href="import.php" class="menu-item"><span>🚚</span> Quản Lý Nhập Hàng</a>
+            <a href="price.php" class="menu-item"><span>🏷️</span> Quản Lý Giá Bán</a>
+            <a href="orders.php" class="menu-item"><span>🛒</span> Quản Lý Đơn Hàng</a>
+            <a href="inventory.php" class="menu-item"><span>📦</span> Quản Lý Tồn Kho</a>
         </nav>
     </div>
 

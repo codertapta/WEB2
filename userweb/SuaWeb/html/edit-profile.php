@@ -129,7 +129,7 @@ $user = mysqli_fetch_assoc($result);
       transform: translateY(-1px);
     }
 
-    @media (max-width:500px) {
+    @media (max-width: 500px) {
       .edit-card {
         padding: 25px 20px;
       }
@@ -141,6 +141,7 @@ $user = mysqli_fetch_assoc($result);
   <div class="edit-card">
     <h2>Chỉnh sửa thông tin</h2>
     <form action="update-profile.php" method="post">
+
       <div class="form-group">
         <label>Họ</label>
         <input type="text" name="ho" value="<?php echo htmlspecialchars($user['ho']); ?>" required placeholder="Nhập họ của bạn">
@@ -153,25 +154,17 @@ $user = mysqli_fetch_assoc($result);
 
       <div class="form-group">
         <label>Số điện thoại</label>
-<<<<<<< HEAD
         <input type="tel" name="sdt" value="<?php echo htmlspecialchars($user['sdt']); ?>" required placeholder="Nhập số điện thoại">
-=======
-        <input type="tel" name="phone" value="<?php echo htmlspecialchars($user['phone']); ?>" required placeholder="Nhập số điện thoại">
->>>>>>> quang/Quang_Khu
       </div>
 
       <div class="form-group">
         <label>Địa chỉ</label>
-<<<<<<< HEAD
         <input type="text" name="diachi" value="<?php echo htmlspecialchars($user['diachi']); ?>" required placeholder="Nhập địa chỉ">
-=======
-        <input type="text" name="address" value="<?php echo htmlspecialchars($user['address']); ?>" required placeholder="Nhập địa chỉ">
->>>>>>> quang/Quang_Khu
       </div>
 
       <button type="submit" class="btn-main">Lưu thay đổi</button>
-      <!-- Nút Hủy -->
       <button type="button" class="btn-cancel" onclick="window.location.href='profile.php'">Hủy</button>
+
     </form>
   </div>
 </body>
