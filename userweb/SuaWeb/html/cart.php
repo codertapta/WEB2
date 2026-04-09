@@ -62,7 +62,7 @@ $user_id = $_SESSION['user_id'];
                     </td>
 
                     <td class="product-info">
-                        <img src="../img/<?php echo $row['image']; ?>" />
+                        <img src="<?php echo $row['image']; ?>" />
                         <div><?php echo $row['name']; ?></div>
                     </td>
 

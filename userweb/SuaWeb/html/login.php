@@ -8,20 +8,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email']    ?? '');
     $pass  = trim($_POST['password'] ?? '');
 
-    $result = mysqli_query($conn, "SELECT * FROM users WHERE email = '$email'");
-    $user   = mysqli_fetch_assoc($result);
+    $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $user = $result->fetch_assoc();
 
-    if ($user && $pass === $user['password']) {
-        // Đăng nhập thành công
-        $_SESSION['user_id'] = $user['id'];
-        header("Location: products.php");
-        exit;
+    if ($user) {
+        // Kiểm tra khóa
+        if ($user['status'] !== 'active') {
+            $error = "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.";
+        } 
+        else {
+            $passwordValid = false;
+            // Nếu mật khẩu đã được hash (bắt đầu bằng $2y$)
+            if (strpos($user['password'], '$2y$') === 0) {
+                $passwordValid = password_verify($pass, $user['password']);
+            } else {
+                // Trường hợp mật khẩu chưa hash (plain text) - tương thích ngược
+                $passwordValid = ($pass === $user['password']);
+            }
+
+            if ($passwordValid) {
+                $_SESSION['user_id'] = $user['id'];
+                header("Location: products.php");
+                exit;
+            } else {
+                $error = "Email hoặc mật khẩu không đúng, vui lòng thử lại!";
+            }
+        }
     } else {
         $error = "Email hoặc mật khẩu không đúng, vui lòng thử lại!";
     }
 }
 ?>
-
+<!-- PHẦN HTML GIỮ NGUYÊN NHƯ CŨ -->
 <!doctype html>
 <html lang="vi">
 <head>
@@ -62,6 +83,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border: none;
         }
         button:hover { background: darkred; }
+        .btn-guest {
+            display: block;
+            width: 90%;
+            padding: 10px;
+            margin: 8px auto 0;
+            background: white;
+            color: red;
+            border: 1px solid red;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            box-sizing: border-box;
+        }
+        .btn-guest:hover {
+            background: #fff0f0;
+        }
         .logo {
             display: flex;
             align-items: center;
@@ -71,6 +109,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .logo img { width: 40px; height: 40px; margin-right: 10px; }
         .error { color: darkred; font-size: 13px; margin-top: 8px; }
         a { color: red; text-decoration: none; }
+        .divider {
+            border: none;
+            border-top: 1px solid #fbb;
+            margin: 12px 0 4px;
+        }
     </style>
 </head>
 <body>
@@ -90,6 +133,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php if ($error): ?>
         <p class="error"><?= $error ?></p>
     <?php endif; ?>
+
+    <hr class="divider"/>
+
+    <a href="products_guest.php" class="btn-guest">🛒 Sử dụng không cần đăng nhập</a>
 
     <p>Chưa có tài khoản? <a href="register.php">Đăng ký</a></p>
 </div>

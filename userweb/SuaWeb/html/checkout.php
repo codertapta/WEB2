@@ -49,8 +49,8 @@ if ($is_buy_now) {
 
     if (empty($selected)) {
         echo "<p style='text-align:center;margin-top:40px;color:#888'>
-              Bạn chưa chọn sản phẩm nào!
-              <a href='cart.php' style='color:#d70018'>← Quay lại giỏ hàng</a></p>";
+              Yêu cầu không hợp lệ vui lòng kiểm tra lại!
+              <a href='products.php' style='color:#d70018'>← Quay lại trang trủ</a></p>";
         exit;
     }
 

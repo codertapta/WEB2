@@ -76,13 +76,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // ─── Lấy dữ liệu ─────────────────────────────────────────────────────────────
-$search     = $conn->real_escape_string(trim($_GET['search'] ?? ''));
-$searchDate = $conn->real_escape_string(trim($_GET['date']   ?? ''));
+$search   = $conn->real_escape_string(trim($_GET['search'] ?? ''));
+$fromDate = $conn->real_escape_string(trim($_GET['from_date'] ?? ''));
+$toDate   = $conn->real_escape_string(trim($_GET['to_date'] ?? ''));
 $editId     = intval($_GET['edit'] ?? 0);
 
 $where = "1=1";
-if ($search !== '')     $where .= " AND io.id LIKE '%$search%'";
-if ($searchDate !== '') $where .= " AND io.import_date = '$searchDate'";
+
+if ($search !== '') {
+    $where .= " AND io.id LIKE '%$search%'";
+}
+
+// lọc theo khoảng ngày
+if ($fromDate !== '' && $toDate !== '') {
+    $where .= " AND io.import_date BETWEEN '$fromDate' AND '$toDate'";
+} elseif ($fromDate !== '') {
+    $where .= " AND io.import_date >= '$fromDate'";
+} elseif ($toDate !== '') {
+    $where .= " AND io.import_date <= '$toDate'";
+}
 
 $importOrders = $conn->query("
     SELECT io.*,
@@ -126,6 +138,35 @@ if ($editId > 0) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Quản Lý Nhập Hàng</title>
   <link rel="stylesheet" href="../css/style.css" />
+  <style>
+    /* Thêm style cho thông báo lỗi */
+    .error-message {
+        color: #dc3545;
+        font-size: 12px;
+        margin-top: 5px;
+        display: none;
+    }
+    .input-error {
+        border-color: #dc3545 !important;
+    }
+    .input-success {
+        border-color: #28a745 !important;
+    }
+    .product-row {
+        margin-bottom: 10px;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+    .field-group {
+        margin-bottom: 10px;
+    }
+    .field-group label {
+        display: inline-block;
+        width: 100px;
+        font-weight: bold;
+    }
+  </style>
 </head>
 <body style="margin:0">
 
@@ -189,15 +230,22 @@ if ($editId > 0) {
         <div class="card">
           <h3>Danh Sách Phiếu Nhập</h3>
 
+          <!-- Form tìm kiếm đã sửa -->
           <form method="GET" action="import.php" style="display:flex;gap:10px;margin-bottom:15px">
-            <input type="text"  name="search" class="input-field"
+            <input type="text" name="search" class="input-field"
                    placeholder="Tìm theo Mã Phiếu..." value="<?= htmlspecialchars($search) ?>"/>
-            <input type="date"  name="date"   class="input-field" value="<?= htmlspecialchars($searchDate) ?>"/>
+            
+            <input type="date" name="from_date" class="input-field" title="Từ ngày" 
+                   value="<?= htmlspecialchars($fromDate) ?>"/>
+            
+            <input type="date" name="to_date" class="input-field" title="Đến ngày" 
+                   value="<?= htmlspecialchars($toDate) ?>"/>
+            
             <button type="submit" class="btn-search">Tìm kiếm</button>
             <a href="import.php" class="btn-reset" style="text-decoration:none;padding:8px 14px">Làm mới</a>
           </form>
 
-          <table>
+           <table>
             <thead>
               <tr>
                 <th>Mã Phiếu</th>
@@ -224,7 +272,7 @@ if ($editId > 0) {
                   <?php else: ?>
                     <span class="status status-processing">Chưa hoàn thành</span>
                   <?php endif; ?>
-                </td>
+                  </td>
                 <td style="white-space:nowrap">
                   <!-- Xem chi tiết -->
                   <a href="#detail-<?= $order['id'] ?>" class="btn-search">Xem chi tiết</a>
@@ -234,18 +282,17 @@ if ($editId > 0) {
                     <a href="import.php?edit=<?= $order['id'] ?>#popupForm" class="btn-edit">Sửa</a>
 
                     <!-- Hoàn thành -->
-                    <form method="POST" action="import.php" style="display:inline"
-                          onsubmit="return confirm('Xác nhận hoàn thành phiếu này? Tồn kho sẽ được cập nhật.')">
+                    <form method="POST" action="import.php" style="display:inline">
                       <input type="hidden" name="action" value="complete"/>
-                      <input type="hidden" name="id"     value="<?= $order['id'] ?>"/>
-                      <button type="submit" class="complete">Hoàn thành</button>
+                      <input type="hidden" name="id" value="<?= $order['id'] ?>"/>
+                      <button type="submit" class="btn-complete" onclick="return confirm('Xác nhận hoàn thành phiếu nhập này?')">Hoàn thành</button>
                     </form>
                   <?php else: ?>
                     <button class="disable" disabled>Sửa</button>
                     <button class="disable" disabled>Hoàn thành</button>
                   <?php endif; ?>
-                </td>
-              </tr>
+                  </td>
+                </tr>
               <?php endwhile; ?>
             <?php else: ?>
               <tr><td colspan="7" style="text-align:center">Không có phiếu nhập nào.</td></tr>
@@ -278,59 +325,88 @@ if ($editId > 0) {
     <a href="import.php" class="close-btn">✖</a>
     <h3><?= $editOrder ? 'Sửa Phiếu Nhập' : 'Thêm Phiếu Nhập' ?></h3>
 
-    <form method="POST" action="import.php">
+    <form method="POST" action="import.php" id="importForm">
       <input type="hidden" name="action" value="save"/>
       <input type="hidden" name="id"     value="<?= $editOrder['id'] ?? 0 ?>"/>
 
-      <label>Ngày nhập</label>
-      <input type="date" name="import_date" class="input-field" required
-             value="<?= $editOrder['import_date'] ?? date('Y-m-d') ?>"/>
+      <div class="field-group">
+        <label>Ngày nhập:</label>
+        <input type="date" name="import_date" class="input-field" required
+               value="<?= $editOrder['import_date'] ?? date('Y-m-d') ?>"/>
+      </div>
 
-      <label>Người nhập</label>
-      <input type="text" name="importer" class="input-field" placeholder="Tên người nhập" required
-             value="<?= htmlspecialchars($editOrder['importer'] ?? '') ?>"/>
+      <div class="field-group">
+        <label>Người nhập:</label>
+        <input type="text" name="importer" id="importer" class="input-field" 
+               placeholder="Tên người nhập (chữ cái và khoảng trắng)" required
+               value="<?= htmlspecialchars($editOrder['importer'] ?? '') ?>"/>
+        <div id="importer-error" class="error-message">Tên người nhập không được chứa số hoặc ký tự đặc biệt!</div>
+      </div>
 
       <label>Danh sách sản phẩm</label>
       <div id="product-rows">
         <?php if (!empty($editDetails)): ?>
-          <?php foreach ($editDetails as $d): ?>
-          <div class="product-row">
-            <select name="product_id[]" class="input-field" required>
-              <option value="">-- Chọn sản phẩm --</option>
-              <?php
-              $products->data_seek(0);
-              while ($p = $products->fetch_assoc()):
-              ?>
-              <option value="<?= $p['id'] ?>"
-                <?= $p['id'] == $d['product_id'] ? 'selected' : '' ?>>
-                <?= htmlspecialchars($p['name']) ?>
-              </option>
-              <?php endwhile; ?>
-            </select>
-            <input type="number" name="cost_price[]" class="input-field"
-                   placeholder="Giá nhập (đ)" min="0" required value="<?= $d['cost_price'] ?>"/>
-            <input type="number" name="quantity[]"   class="input-field"
-                   placeholder="Số lượng" min="1" required value="<?= $d['quantity'] ?>"/>
+          <?php foreach ($editDetails as $index => $d): ?>
+          <div class="product-row" data-row="<?= $index ?>">
+            <div class="field-group">
+              <label>Sản phẩm:</label>
+              <select name="product_id[]" class="input-field product-select" required>
+                <option value="">-- Chọn sản phẩm --</option>
+                <?php
+                $products->data_seek(0);
+                while ($p = $products->fetch_assoc()):
+                ?>
+                <option value="<?= $p['id'] ?>"
+                  <?= $p['id'] == $d['product_id'] ? 'selected' : '' ?>>
+                  <?= htmlspecialchars($p['name']) ?>
+                </option>
+                <?php endwhile; ?>
+              </select>
+            </div>
+            <div class="field-group">
+              <label>Giá nhập:</label>
+              <input type="text" name="cost_price[]" class="input-field cost-price"
+                     placeholder="Giá nhập (đ)" required value="<?= $d['cost_price'] ?>"/>
+              <div class="error-message cost-price-error">Giá nhập phải là số!</div>
+            </div>
+            <div class="field-group">
+              <label>Số lượng:</label>
+              <input type="text" name="quantity[]" class="input-field quantity"
+                     placeholder="Số lượng" required value="<?= $d['quantity'] ?>"/>
+              <div class="error-message quantity-error">Số lượng phải là số nguyên dương!</div>
+            </div>
             <button type="button" class="btn-remove" onclick="removeRow(this)">✕</button>
           </div>
           <?php endforeach; ?>
         <?php else: ?>
-          <div class="product-row">
-            <select name="product_id[]" class="input-field" required>
-              <option value="">-- Chọn sản phẩm --</option>
-              <?php $products->data_seek(0); while ($p = $products->fetch_assoc()): ?>
-              <option value="<?= $p['id'] ?>"><?= htmlspecialchars($p['name']) ?></option>
-              <?php endwhile; ?>
-            </select>
-            <input type="number" name="cost_price[]" class="input-field" placeholder="Giá nhập (đ)" min="0" required/>
-            <input type="number" name="quantity[]"   class="input-field" placeholder="Số lượng"    min="1" required/>
+          <div class="product-row" data-row="0">
+            <div class="field-group">
+              <label>Sản phẩm:</label>
+              <select name="product_id[]" class="input-field product-select" required>
+                <option value="">-- Chọn sản phẩm --</option>
+                <?php $products->data_seek(0); while ($p = $products->fetch_assoc()): ?>
+                <option value="<?= $p['id'] ?>"><?= htmlspecialchars($p['name']) ?></option>
+                <?php endwhile; ?>
+              </select>
+            </div>
+            <div class="field-group">
+              <label>Giá nhập:</label>
+              <input type="text" name="cost_price[]" class="input-field cost-price" 
+                     placeholder="Giá nhập (đ)" required/>
+              <div class="error-message cost-price-error">Giá nhập phải là số!</div>
+            </div>
+            <div class="field-group">
+              <label>Số lượng:</label>
+              <input type="text" name="quantity[]" class="input-field quantity" 
+                     placeholder="Số lượng" required/>
+              <div class="error-message quantity-error">Số lượng phải là số nguyên dương!</div>
+            </div>
             <button type="button" class="btn-remove" onclick="removeRow(this)">✕</button>
           </div>
         <?php endif; ?>
       </div>
 
       <button type="button" id="btn-add-row">+ Thêm sản phẩm</button>
-
       <button type="submit" class="btn-save">Lưu Phiếu Nhập</button>
     </form>
   </div>
@@ -369,7 +445,7 @@ while ($order = $importOrders2->fetch_assoc()):
 ?>
 <div id="detail-<?= $oid ?>" class="popup-overlay">
   <div class="popup">
-    <a href="import.php<?= $search || $searchDate ? '?search='.urlencode($search).'&date='.urlencode($searchDate) : '' ?>" class="close-btn">✖</a>
+    <a href="import.php?search=<?= urlencode($search) ?>&from_date=<?= urlencode($fromDate) ?>&to_date=<?= urlencode($toDate) ?>" class="close-btn">✖</a>
     <h2>Chi Tiết Phiếu Nhập</h2>
     <div class="detail-info" style="margin-bottom:20px">
       <p><strong>Mã phiếu:</strong> PN<?= str_pad($oid, 3, '0', STR_PAD_LEFT) ?></p>
@@ -418,33 +494,272 @@ while ($order = $importOrders2->fetch_assoc()):
 
 <script>
   // ── Template cho hàng sản phẩm mới ──────────────────────────────────────────
-  const productOptions = `<?php
+  var productOptions = '<?php
     $products->data_seek(0);
-    $opts = '<option value="">-- Chọn sản phẩm --</option>';
+    $opts = "<option value=\"\">-- Chọn sản phẩm --</option>";
     while ($p = $products->fetch_assoc()) {
-        $opts .= '<option value="'.$p['id'].'">'.htmlspecialchars($p['name']).'</option>';
+        $opts .= "<option value=\"" . $p['id'] . "\">" . htmlspecialchars($p['name'], ENT_QUOTES) . "</option>";
     }
-    echo addslashes($opts);
-  ?>`;
+    echo $opts;
+  ?>';
 
-  document.getElementById('btn-add-row').addEventListener('click', function () {
-    const row = document.createElement('div');
-    row.className = 'product-row';
-    row.innerHTML = `
-      <select name="product_id[]" class="input-field" required>
-        ${productOptions}
-      </select>
-      <input type="number" name="cost_price[]" class="input-field" placeholder="Giá nhập (đ)" min="0" required/>
-      <input type="number" name="quantity[]"   class="input-field" placeholder="Số lượng"    min="1" required/>
-      <button type="button" class="btn-remove" onclick="removeRow(this)">✕</button>
-    `;
-    document.getElementById('product-rows').appendChild(row);
-  });
+  // Hàm kiểm tra tên người nhập (chỉ cho phép chữ cái và khoảng trắng)
+  function validateImporterName(name) {
+    var regex = /^[A-Za-zÀ-ỹ\s]+$/;
+    return regex.test(name);
+  }
+
+  // Hàm kiểm tra số (cho phép số nguyên)
+  function validateNumber(value, allowZero) {
+    var num = parseInt(value);
+    if (isNaN(num)) return false;
+    if (!allowZero && num <= 0) return false;
+    return true;
+  }
+
+  // Hàm kiểm tra giá nhập
+  function validateCostPrice(value) {
+    return /^[1-9]\d*$/.test(value);
+  }
+
+  // Hàm kiểm tra số lượng
+  function validateQuantity(value) {
+     return /^[1-9]\d*$/.test(value);
+  }
+
+  // Hàm hiển thị lỗi cho input
+  function showError(input, errorDiv, message, isValid) {
+    if (!isValid) {
+      input.classList.add('input-error');
+      input.classList.remove('input-success');
+      errorDiv.style.display = 'block';
+      errorDiv.textContent = message;
+      return false;
+    } else {
+      input.classList.remove('input-error');
+      input.classList.add('input-success');
+      errorDiv.style.display = 'none';
+      return true;
+    }
+  }
+
+  // Hàm kiểm tra tất cả các trường trong form
+  function validateAllFields() {
+    var isValid = true;
+
+    // Kiểm tra tên người nhập
+    var importerInput = document.getElementById('importer');
+    var importerError = document.getElementById('importer-error');
+    var importerValue = importerInput.value.trim();
+    
+    if (!validateImporterName(importerValue)) {
+      showError(importerInput, importerError, 'Tên người nhập không được chứa số hoặc ký tự đặc biệt!', false);
+      isValid = false;
+    } else if (importerValue === '') {
+      showError(importerInput, importerError, 'Vui lòng nhập tên người nhập!', false);
+      isValid = false;
+    } else {
+      showError(importerInput, importerError, '', true);
+    }
+
+    // Kiểm tra các sản phẩm
+    var productRows = document.querySelectorAll('#product-rows .product-row');
+    
+    if (productRows.length === 0) {
+      alert('Vui lòng thêm ít nhất một sản phẩm!');
+      isValid = false;
+    }
+
+    for (var i = 0; i < productRows.length; i++) {
+      var row = productRows[i];
+      var costPriceInput = row.querySelector('.cost-price');
+      var quantityInput = row.querySelector('.quantity');
+      var productSelect = row.querySelector('.product-select');
+      
+      var costPriceError = row.querySelector('.cost-price-error');
+      var quantityError = row.querySelector('.quantity-error');
+
+      // Kiểm tra sản phẩm đã được chọn chưa
+      if (!productSelect.value) {
+        productSelect.classList.add('input-error');
+        isValid = false;
+      } else {
+        productSelect.classList.remove('input-error');
+        productSelect.classList.add('input-success');
+      }
+
+      // Kiểm tra giá nhập
+      if (!validateCostPrice(costPriceInput.value)) {
+        showError(costPriceInput, costPriceError, 'Giá nhập phải là số không âm!', false);
+        isValid = false;
+      } else {
+        showError(costPriceInput, costPriceError, '', true);
+      }
+
+      // Kiểm tra số lượng
+      if (!validateQuantity(quantityInput.value)) {
+        showError(quantityInput, quantityError, 'Số lượng phải là số nguyên dương!', false);
+        isValid = false;
+      } else {
+        showError(quantityInput, quantityError, '', true);
+      }
+    }
+
+    return isValid;
+  }
+
+  // Thêm sự kiện cho tên người nhập
+  var importerElement = document.getElementById('importer');
+  if (importerElement) {
+    importerElement.addEventListener('blur', function() {
+      var value = this.value.trim();
+      var errorDiv = document.getElementById('importer-error');
+      
+      if (!validateImporterName(value)) {
+        showError(this, errorDiv, 'Tên người nhập không được chứa số hoặc ký tự đặc biệt!', false);
+      } else if (value === '') {
+        showError(this, errorDiv, 'Vui lòng nhập tên người nhập!', false);
+      } else {
+        showError(this, errorDiv, '', true);
+      }
+    });
+
+    importerElement.addEventListener('input', function() {
+      var value = this.value.trim();
+      var errorDiv = document.getElementById('importer-error');
+      
+      if (value && validateImporterName(value)) {
+        showError(this, errorDiv, '', true);
+      }
+    });
+  }
+
+  // Hàm thêm sự kiện cho một dòng sản phẩm
+  function addRowEvents(row) {
+    var costPriceInput = row.querySelector('.cost-price');
+    var quantityInput = row.querySelector('.quantity');
+    var costPriceError = row.querySelector('.cost-price-error');
+    var quantityError = row.querySelector('.quantity-error');
+    var productSelect = row.querySelector('.product-select');
+
+    // Sự kiện cho giá nhập
+    if (costPriceInput) {
+      costPriceInput.addEventListener('blur', function() {
+        var value = this.value.trim();
+        var errorDiv = this.parentElement.querySelector('.cost-price-error');
+        if (!validateCostPrice(value)) {
+          showError(this, errorDiv, 'Giá nhập phải là số không âm!', false);
+        } else if (value === '') {
+          showError(this, errorDiv, 'Vui lòng nhập giá nhập!', false);
+        } else {
+          showError(this, errorDiv, '', true);
+        }
+      });
+
+      costPriceInput.addEventListener('input', function() {
+        var value = this.value.trim();
+        var errorDiv = this.parentElement.querySelector('.cost-price-error');
+        if (value && validateCostPrice(value)) {
+          showError(this, errorDiv, '', true);
+        }
+      });
+    }
+
+    // Sự kiện cho số lượng
+    if (quantityInput) {
+      quantityInput.addEventListener('blur', function() {
+        var value = this.value.trim();
+        var errorDiv = this.parentElement.querySelector('.quantity-error');
+        if (!validateQuantity(value)) {
+          showError(this, errorDiv, 'Số lượng phải là số nguyên dương!', false);
+        } else if (value === '') {
+          showError(this, errorDiv, 'Vui lòng nhập số lượng!', false);
+        } else {
+          showError(this, errorDiv, '', true);
+        }
+      });
+
+      quantityInput.addEventListener('input', function() {
+        var value = this.value.trim();
+        var errorDiv = this.parentElement.querySelector('.quantity-error');
+        if (value && validateQuantity(value)) {
+          showError(this, errorDiv, '', true);
+        }
+      });
+    }
+
+    // Sự kiện cho select sản phẩm
+    if (productSelect) {
+      productSelect.addEventListener('change', function() {
+        if (this.value) {
+          this.classList.remove('input-error');
+          this.classList.add('input-success');
+        } else {
+          this.classList.remove('input-success');
+          this.classList.add('input-error');
+        }
+      });
+    }
+  }
+
+  // Thêm sự kiện cho các dòng sản phẩm hiện tại
+  var existingRows = document.querySelectorAll('#product-rows .product-row');
+  for (var i = 0; i < existingRows.length; i++) {
+    addRowEvents(existingRows[i]);
+  }
+
+  // Thêm dòng mới
+  var addButton = document.getElementById('btn-add-row');
+  if (addButton) {
+    addButton.addEventListener('click', function() {
+      var rowCount = document.querySelectorAll('#product-rows .product-row').length;
+      var row = document.createElement('div');
+      row.className = 'product-row';
+      row.setAttribute('data-row', rowCount);
+      row.innerHTML = `
+        <div class="field-group">
+          <label>Sản phẩm:</label>
+          <select name="product_id[]" class="input-field product-select" required>
+            ${productOptions}
+          </select>
+        </div>
+        <div class="field-group">
+          <label>Giá nhập:</label>
+          <input type="text" name="cost_price[]" class="input-field cost-price" 
+                 placeholder="Giá nhập (đ)" required/>
+          <div class="error-message cost-price-error">Giá nhập phải là số!</div>
+        </div>
+        <div class="field-group">
+          <label>Số lượng:</label>
+          <input type="text" name="quantity[]" class="input-field quantity" 
+                 placeholder="Số lượng" required/>
+          <div class="error-message quantity-error">Số lượng phải là số nguyên dương!</div>
+        </div>
+        <button type="button" class="btn-remove" onclick="removeRow(this)">✕</button>
+      `;
+      document.getElementById('product-rows').appendChild(row);
+      addRowEvents(row);
+    });
+  }
 
   function removeRow(btn) {
-    const rows = document.querySelectorAll('#product-rows .product-row');
-    if (rows.length > 1) btn.closest('.product-row').remove();
-    else alert('Phiếu nhập phải có ít nhất một sản phẩm!');
+    var rows = document.querySelectorAll('#product-rows .product-row');
+    if (rows.length > 1) {
+      btn.closest('.product-row').remove();
+    } else {
+      alert('Phiếu nhập phải có ít nhất một sản phẩm!');
+    }
+  }
+
+  // Kiểm tra trước khi submit form
+  var importForm = document.getElementById('importForm');
+  if (importForm) {
+    importForm.addEventListener('submit', function(e) {
+      if (!validateAllFields()) {
+        e.preventDefault();
+        alert('Vui lòng kiểm tra lại thông tin nhập!');
+      }
+    });
   }
 
   // Nếu đang sửa thì tự mở popup

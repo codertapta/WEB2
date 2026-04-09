@@ -147,7 +147,7 @@ $pay_text = [
     }
     foreach ($detail_rows as $d): ?>
     <div class="product-row">
-      <img src="../img/<?php echo htmlspecialchars($d['image']); ?>">
+      <img src="<?php echo htmlspecialchars($d['image']); ?>">
       <div>
         <div class="pname"><?php echo htmlspecialchars($d['name']); ?></div>
         <div class="pqty"><?php echo number_format($d['price']); ?>₫ × <?php echo $d['quantity']; ?></div>

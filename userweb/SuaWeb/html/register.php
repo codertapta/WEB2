@@ -12,55 +12,71 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email  = trim($_POST['email']  ?? '');
     $pass   = $_POST['password']    ?? '';
 
-    // Kiểm tra họ tên: không có số/ký tự đặc biệt, phải có ít nhất 1 khoảng trắng
-    if (!preg_match('/^[p{L}\s]+$/u', $hoten)) {
+    // 1. Kiểm tra họ tên: chỉ chữ và khoảng trắng (Unicode), có ít nhất một khoảng trắng
+    if (!preg_match('/^[\p{L}\s]+$/u', $hoten)) {
         $error = "Họ tên không được chứa số hoặc ký tự đặc biệt!";
     } elseif (!str_contains($hoten, ' ')) {
         $error = "Họ tên phải có ít nhất họ và tên (có khoảng trắng)!";
     }
 
-    // Kiểm tra SĐT: bắt đầu bằng 0, đúng 10 chữ số
+    // 2. Kiểm tra số điện thoại: bắt đầu bằng 0, đúng 10 chữ số
     if (!$error && !preg_match('/^0[0-9]{9}$/', $sdt)) {
         $error = "Số điện thoại phải bắt đầu bằng 0 và có đúng 10 chữ số!";
     }
 
-    // Kiểm tra email đúng định dạng
+    // 3. Kiểm tra địa chỉ: chỉ cho phép chữ, số, khoảng trắng và dấu /
+    if (!$error && !preg_match('/^[\p{L}\p{N}\s\/]+$/u', $diachi)) {
+        $error = "Địa chỉ không được chứa ký tự đặc biệt (chỉ cho phép chữ, số, khoảng trắng và dấu /)!";
+    }
+
+    // 4. Kiểm tra email đúng định dạng
     if (!$error && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = "Email không đúng định dạng!";
     }
 
-    // Kiểm tra trùng email
+    // 5. Kiểm tra trùng email và số điện thoại (dùng prepared statement)
     if (!$error) {
-        $check_email = mysqli_query($conn, "SELECT id FROM users WHERE email = '$email'");
-        if (mysqli_num_rows($check_email) > 0) {
+        $stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($result->num_rows > 0) {
             $error = "Email này đã được sử dụng, vui lòng nhập email khác!";
         }
     }
 
-    // Kiểm tra trùng SĐT
     if (!$error) {
-        $check_sdt = mysqli_query($conn, "SELECT id FROM users WHERE sdt = '$sdt'");
-        if (mysqli_num_rows($check_sdt) > 0) {
+        $stmt = $conn->prepare("SELECT id FROM users WHERE sdt = ?");
+        $stmt->bind_param("s", $sdt);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($result->num_rows > 0) {
             $error = "Số điện thoại này đã được sử dụng, vui lòng nhập số khác!";
         }
     }
 
-    // Lưu vào DB
+    // Lưu vào database
     if (!$error) {
+        // Tách họ và tên
         $parts = explode(' ', $hoten, 2);
         $ho    = $parts[0];
         $ten   = $parts[1] ?? '';
-        $sql = "INSERT INTO users (ho, ten, sdt, diachi, email, password) 
-                VALUES ('$ho', '$ten', '$sdt', '$diachi', '$email', '$pass')";
-        if (mysqli_query($conn, $sql)) {
+
+        // Mã hóa mật khẩu
+        $hashed_password = password_hash($pass, PASSWORD_DEFAULT);
+        $status = 'active';
+
+        $stmt = $conn->prepare("INSERT INTO users (ho, ten, sdt, diachi, email, password, status) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("sssssss", $ho, $ten, $sdt, $diachi, $email, $hashed_password, $status);
+
+        if ($stmt->execute()) {
             $success = "Đăng ký thành công! Đang chuyển hướng...";
         } else {
-            $error = "Có lỗi xảy ra, vui lòng thử lại!";
+            $error = "Có lỗi xảy ra: " . $stmt->error;
         }
     }
 }
 ?>
-
 <!doctype html>
 <html lang="vi">
 <head>
@@ -124,23 +140,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <h2>Đăng ký</h2>
 
     <form method="POST" id="registerForm">
-        <input type="text"     name="hoten"    id="hoten"    placeholder="Họ và tên"     required value="<?= htmlspecialchars($_POST['hoten']  ?? '') ?>"/>
+        <input type="text" name="hoten" id="hoten" placeholder="Họ và tên" required
+               value="<?= htmlspecialchars($_POST['hoten'] ?? '') ?>"/>
         <p class="hint">Không chứa số/ký tự đặc biệt, phải có họ và tên</p>
 
-        <input type="text"     name="sdt"      id="sdt"      placeholder="Số điện thoại" required value="<?= htmlspecialchars($_POST['sdt']    ?? '') ?>"/>
+        <input type="text" name="sdt" id="sdt" placeholder="Số điện thoại" required
+               value="<?= htmlspecialchars($_POST['sdt'] ?? '') ?>"/>
         <p class="hint">Bắt đầu bằng 0, đúng 10 chữ số</p>
 
-        <input type="text"     name="diachi"   id="diachi"   placeholder="Địa chỉ"       required value="<?= htmlspecialchars($_POST['diachi'] ?? '') ?>"/>
+        <input type="text" name="diachi" id="diachi" placeholder="Địa chỉ" required
+               value="<?= htmlspecialchars($_POST['diachi'] ?? '') ?>"/>
+        <p class="hint">Không chứa ký tự đặc biệt (cho phép chữ, số, khoảng trắng và dấu /)</p>
 
-        <input type="email"    name="email"    id="email"    placeholder="Email"          required value="<?= htmlspecialchars($_POST['email']  ?? '') ?>"/>
+        <input type="email" name="email" id="email" placeholder="Email" required
+               value="<?= htmlspecialchars($_POST['email'] ?? '') ?>"/>
 
-        <input type="password" name="password" id="password" placeholder="Mật khẩu"      required/>
+        <input type="password" name="password" id="password" placeholder="Mật khẩu" required/>
 
         <button type="submit">Đăng ký</button>
     </form>
 
-    <?php if ($error):   ?><p class="error"><?= $error ?></p><?php endif; ?>
-    <?php if ($success): ?><p class="success"><?= $success ?></p><?php endif; ?>
+    <?php if ($error):   ?><p class="error"><?= htmlspecialchars($error) ?></p><?php endif; ?>
+    <?php if ($success): ?><p class="success"><?= htmlspecialchars($success) ?></p><?php endif; ?>
 
     <p>Đã có tài khoản? <a href="login.php">Đăng nhập</a></p>
 </div>
@@ -149,7 +170,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 document.getElementById('registerForm').addEventListener('submit', function(e) {
     let valid = true;
 
-    // Họ tên
     const hoten = document.getElementById('hoten');
     const hotenVal = hoten.value.trim();
     if (!/^[\p{L}\s]+$/u.test(hotenVal)) {
@@ -164,28 +184,31 @@ document.getElementById('registerForm').addEventListener('submit', function(e) {
         hoten.classList.remove('invalid');
     }
 
-    // SĐT
-    if (valid) {
-        const sdt = document.getElementById('sdt');
-        if (!/^0[0-9]{9}$/.test(sdt.value.trim())) {
-            sdt.classList.add('invalid');
-            alert('Số điện thoại phải bắt đầu bằng 0 và có đúng 10 chữ số!');
-            valid = false;
-        } else {
-            sdt.classList.remove('invalid');
-        }
+    const sdt = document.getElementById('sdt');
+    if (valid && !/^0[0-9]{9}$/.test(sdt.value.trim())) {
+        sdt.classList.add('invalid');
+        alert('Số điện thoại phải bắt đầu bằng 0 và có đúng 10 chữ số!');
+        valid = false;
+    } else {
+        sdt.classList.remove('invalid');
     }
 
-    // Email
-    if (valid) {
-        const email = document.getElementById('email');
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim())) {
-            email.classList.add('invalid');
-            alert('Email không đúng định dạng!');
-            valid = false;
-        } else {
-            email.classList.remove('invalid');
-        }
+    const diachi = document.getElementById('diachi');
+    if (valid && !/^[\p{L}\p{N}\s\/]+$/u.test(diachi.value.trim())) {
+        diachi.classList.add('invalid');
+        alert('Địa chỉ không được chứa ký tự đặc biệt (chỉ cho phép chữ, số, khoảng trắng và dấu /)!');
+        valid = false;
+    } else {
+        diachi.classList.remove('invalid');
+    }
+
+    const email = document.getElementById('email');
+    if (valid && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim())) {
+        email.classList.add('invalid');
+        alert('Email không đúng định dạng!');
+        valid = false;
+    } else {
+        email.classList.remove('invalid');
     }
 
     if (!valid) e.preventDefault();

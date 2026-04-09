@@ -29,19 +29,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Thêm đơn hàng mới
     if ($action === 'add') {
         $userId     = intval($_POST['user_id'] ?? 0);
-        $totalPrice = intval($_POST['total_price'] ?? 0);
-        $status     = $conn->real_escape_string($_POST['status'] ?? 'pending');
-        $orderDate  = date('Y-m-d H:i:s');
+    $totalPrice = intval($_POST['total_price'] ?? 0);
+    $status     = $conn->real_escape_string($_POST['status'] ?? 'pending');
+    $orderDate  = date('Y-m-d H:i:s');
 
-        if ($userId > 0 && $totalPrice > 0) {
-            $conn->query("INSERT INTO orders (user_id, order_date, total_price, status)
-                          VALUES ($userId, '$orderDate', $totalPrice, '$status')");
-            $message     = 'Thêm đơn hàng thành công!';
-            $messageType = 'success';
-        } else {
-            $message     = 'Vui lòng điền đầy đủ thông tin!';
-            $messageType = 'error';
-        }
+    if ($userId > 0 && $totalPrice > 0) {
+        // 1. Insert tạm để có ID
+        $conn->query("INSERT INTO orders (user_id, order_date, total_price, status)
+                      VALUES ($userId, '$orderDate', $totalPrice, '$status')");
+        $newId = $conn->insert_id;
+        
+        // 2. Tạo mã đơn hàng theo ý muốn (ví dụ: DH + 5 số)
+        $ma_don = 'DH' . str_pad($newId, 5, '0', STR_PAD_LEFT);
+        
+        // 3. Cập nhật lại ma_don cho order vừa tạo
+        $conn->query("UPDATE orders SET ma_don = '$ma_don' WHERE id = $newId");
+        
+        $message     = 'Thêm đơn hàng thành công! Mã: ' . $ma_don;
+        $messageType = 'success';
+    } else {
+        $message     = 'Vui lòng điền đầy đủ thông tin!';
+        $messageType = 'error';
+    }
     }
 }
 
@@ -203,7 +212,7 @@ $statusMap = [
             $st = $statusMap[$o['status']] ?? ['label' => $o['status'], 'class' => 'status-processing'];
           ?>
           <tr>
-            <td><strong>#DH<?= str_pad($o['id'], 3, '0', STR_PAD_LEFT) ?></strong></td>
+            <td><strong><?= htmlspecialchars($o['ma_don']) ?></strong></td>
             <td>
               <?= htmlspecialchars($o['customer_name'] ?? 'Khách vãng lai') ?>
               <?php if ($o['sdt']): ?>
@@ -262,12 +271,12 @@ while ($o = $orders2->fetch_assoc()):
 <div id="detail-<?= $o['id'] ?>" class="popup-overlay">
   <div class="popup">
     <a href="orders.php" class="close-btn">✖</a>
-    <h3 style="color:#dc2626;margin-bottom:14px">Chi Tiết Đơn Hàng #DH<?= str_pad($o['id'],3,'0',STR_PAD_LEFT) ?></h3>
+    <h3 style="color:#dc2626;margin-bottom:14px">Chi Tiết Đơn Hàng <?= htmlspecialchars($o['ma_don']) ?></h3>
     <div class="detail-info" style="margin-bottom:16px;display:grid;grid-template-columns:1fr 1fr;gap:6px">
       <p><strong>Khách hàng:</strong> <?= htmlspecialchars($o['customer_name'] ?? 'Khách vãng lai') ?></p>
       <p><strong>SĐT:</strong> <?= htmlspecialchars($o['sdt'] ?? '—') ?></p>
       <p><strong>Email:</strong> <?= htmlspecialchars($o['email'] ?? '—') ?></p>
-      <p><strong>Địa chỉ:</strong> <?= htmlspecialchars($o['diachi'] ?? '—') ?></p>
+      <p><strong>Địa chỉ giao hàng:</strong> <?= htmlspecialchars($o['address'] ?: ($o['diachi'] ?? '—')) ?></p>
       <p><strong>Ngày đặt:</strong> <?= date('d/m/Y H:i', strtotime($o['order_date'])) ?></p>
       <p><strong>Trạng thái:</strong> <span class="status <?= $st['class'] ?>"><?= $st['label'] ?></span></p>
     </div>
@@ -305,7 +314,7 @@ while ($o = $orders2->fetch_assoc()):
   <div class="popup" style="max-width:400px">
     <a href="orders.php" class="close-btn">✖</a>
     <h3 style="color:#dc2626;margin-bottom:16px">Cập Nhật Trạng Thái</h3>
-    <p style="margin-bottom:12px">Đơn hàng: <strong>#DH<?= str_pad($o['id'],3,'0',STR_PAD_LEFT) ?></strong></p>
+    <p style="margin-bottom:12px">Đơn hàng: <strong><?= htmlspecialchars($o['ma_don']) ?></strong></p>
     <form method="POST" action="orders.php">
       <input type="hidden" name="action"   value="update_status"/>
       <input type="hidden" name="order_id" value="<?= $o['id'] ?>"/>

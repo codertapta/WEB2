@@ -11,6 +11,13 @@ if ($user_id > 0) {
     $count = mysqli_fetch_assoc($result_cart);
 }
 
+// ===== LẤY DANH MỤC TỪ DATABASE =====
+$categories = [];
+$catQuery = mysqli_query($conn, "SELECT id, name FROM categories WHERE status = 1 ORDER BY id");
+while ($cat = mysqli_fetch_assoc($catQuery)) {
+    $categories[$cat['id']] = $cat['name'];
+}
+
 // ===== LẤY DỮ LIỆU TÌM KIẾM =====
 $keyword  = isset($_GET['ten'])    ? $_GET['ten']        : '';
 $category = isset($_GET['loai'])   ? (int)$_GET['loai']  : 0;
@@ -26,7 +33,7 @@ if ($page < 1) $page = 1;
 $offset = ($page - 1) * $limit;
 
 // ===== XÂY DỰNG CÂU SQL =====
-$where = "WHERE 1";
+$where = "WHERE status = 1";
 if ($keyword  != '') $where .= " AND name LIKE '%$keyword%'";
 if ($category  > 0)  $where .= " AND category_id = $category";
 if ($giatu     > 0)  $where .= " AND price >= $giatu";
@@ -39,8 +46,6 @@ $total_result   = mysqli_query($conn, "SELECT COUNT(*) as total FROM products $w
 $total_row      = mysqli_fetch_assoc($total_result);
 $total_products = $total_row['total'];
 $total_pages    = ceil($total_products / $limit);
-
-$categories = [1 => 'Laptop AI', 2 => 'Laptop Gaming', 3 => 'Laptop mỏng nhẹ'];
 ?>
 
 <!DOCTYPE html>
@@ -51,6 +56,33 @@ $categories = [1 => 'Laptop AI', 2 => 'Laptop Gaming', 3 => 'Laptop mỏng nhẹ
     <title>Tìm kiếm sản phẩm - MUIT</title>
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .stock-info {
+            font-size: 13px;
+            margin: 5px 0;
+            font-weight: bold;
+        }
+        .in-stock {
+            color: #2e7d32;
+        }
+        .out-of-stock {
+            color: #c62828;
+        }
+        .out-of-stock-label {
+            background: #ccc;
+            color: #333;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: not-allowed;
+            display: inline-block;
+        }
+        .product-actions .disabled-link {
+            pointer-events: none;
+            opacity: 0.5;
+            cursor: default;
+        }
+    </style>
 </head>
 
 <body>
@@ -67,15 +99,15 @@ $categories = [1 => 'Laptop AI', 2 => 'Laptop Gaming', 3 => 'Laptop mỏng nhẹ
         <nav>
             <ul class="nav-links">
                 <li><a href="products.php">Trang chủ</a></li>
-                <li><a href="products.php?category=1">Laptop AI</a></li>
-                <li><a href="products.php?category=2">Laptop Gaming</a></li>
-                <li><a href="products.php?category=3">Laptop mỏng nhẹ</a></li>
+                <?php foreach ($categories as $id => $name): ?>
+                    <li><a href="products.php?category=<?= $id ?>"><?= htmlspecialchars($name) ?></a></li>
+                <?php endforeach; ?>
             </ul>
         </nav>
 
         <div class="search-and-hotline">
             <form action="timkiemnc.php" method="get" class="search-container">
-                <input type="text" name="ten" placeholder="Tìm kiếm sản phẩm..." value="<?= $keyword ?>">
+                <input type="text" name="ten" placeholder="Tìm kiếm sản phẩm..." value="<?= htmlspecialchars($keyword) ?>">
                 <button type="submit">Tìm</button>
             </form>
             <div class="hotline">Hotline:19001234</div>
@@ -100,7 +132,7 @@ $categories = [1 => 'Laptop AI', 2 => 'Laptop Gaming', 3 => 'Laptop mỏng nhẹ
     <main>
         <div class="timkiem">
             <h1>Tìm kiếm sản phẩm</h1>
-            <p>Kết quả tìm kiếm cho: "<?= $keyword ?>"</p>
+            <p>Kết quả tìm kiếm cho: "<?= htmlspecialchars($keyword) ?>"</p>
         </div>
 
         <!-- ===== FORM TÌM KIẾM NÂNG CAO ===== -->
@@ -110,17 +142,16 @@ $categories = [1 => 'Laptop AI', 2 => 'Laptop Gaming', 3 => 'Laptop mỏng nhẹ
 
                 <div class="tensp">
                     <label>Tên sản phẩm:</label>
-                    <input type="text" name="ten" placeholder="Nhập tên sản phẩm" value="<?= $keyword ?>" />
+                    <input type="text" name="ten" placeholder="Nhập tên sản phẩm" value="<?= htmlspecialchars($keyword) ?>" />
                 </div>
 
                 <div class="phanloaisp">
                     <label>Phân loại:</label>
                     <select name="loai">
                         <option value="0">Tất cả</option>
-                        <?php foreach ($categories as $id => $name) {
-                            $sel = ($category == $id) ? 'selected' : '';
-                            echo "<option value='$id' $sel>$name</option>";
-                        } ?>
+                        <?php foreach ($categories as $id => $name): ?>
+                            <option value="<?= $id ?>" <?= ($category == $id) ? 'selected' : '' ?>><?= htmlspecialchars($name) ?></option>
+                        <?php endforeach; ?>
                     </select>
                 </div>
 
@@ -145,17 +176,27 @@ $categories = [1 => 'Laptop AI', 2 => 'Laptop Gaming', 3 => 'Laptop mỏng nhẹ
         <!-- ===== DANH SÁCH SẢN PHẨM ===== -->
         <div class="product-grid">
             <?php if (mysqli_num_rows($result) > 0): ?>
-                <?php while ($row = mysqli_fetch_assoc($result)): ?>
+                <?php while ($row = mysqli_fetch_assoc($result)):
+                    $stock = (int)$row['quantity'];
+                    $inStock = ($stock > 0);
+                    $stockText = $inStock ? "Còn $stock sản phẩm" : "Hết hàng";
+                    $stockClass = $inStock ? "in-stock" : "out-of-stock";
+                ?>
                     <div class="product-item">
-                        <img src="<?= $row['image'] ?>" alt="<?= $row['name'] ?>">
-                        <h3><?= $row['name'] ?></h3>
+                        <img src="<?= htmlspecialchars($row['image']) ?>" alt="<?= htmlspecialchars($row['name']) ?>">
+                        <h3><?= htmlspecialchars($row['name']) ?></h3>
                         <p>Giá: <?= number_format($row['price']) ?> VND</p>
-                        <p>Phân loại: <?= $categories[$row['category_id']] ?></p>
+                        <p>Phân loại: <?= htmlspecialchars($categories[$row['category_id']] ?? 'Khác') ?></p>
+                        <p class="stock-info <?= $stockClass ?>">📦 Tồn kho: <?= $stockText ?></p>
                         <div class="product-actions">
-                            <a href="checkout.php?id=<?= $row['id'] ?>&qty=1" class="buy-now-link">Mua ngay</a>
-                            <a href="add_to_cart.php?id=<?= $row['id'] ?>&qty=1" class="add-to-cart">
-                                <i class="fas fa-cart-plus"></i>
-                            </a>
+                            <?php if ($inStock): ?>
+                                <a href="checkout.php?id=<?= $row['id'] ?>&qty=1" class="buy-now-link">Mua ngay</a>
+                                <a href="add_to_cart.php?id=<?= $row['id'] ?>&qty=1" class="add-to-cart">
+                                    <i class="fas fa-cart-plus"></i>
+                                </a>
+                            <?php else: ?>
+                                <span class="out-of-stock-label">Tạm hết hàng</span>
+                            <?php endif; ?>
                             <a href="product_detail.php?id=<?= $row['id'] ?>" class="view-detail">
                                 <i class="fas fa-eye"></i> Xem chi tiết
                             </a>
@@ -170,7 +211,7 @@ $categories = [1 => 'Laptop AI', 2 => 'Laptop Gaming', 3 => 'Laptop mỏng nhẹ
         <!-- ===== PHÂN TRANG ===== -->
         <div class="product-pagination">
             <?php if ($page > 1) { ?>
-                <a class="page prev" href="?page=<?= $page - 1 ?>&ten=<?= $keyword ?>&loai=<?= $category ?>&giatu=<?= $giatu ?>&giaden=<?= $giaden ?>">&lt;</a>
+                <a class="page prev" href="?page=<?= $page - 1 ?>&ten=<?= urlencode($keyword) ?>&loai=<?= $category ?>&giatu=<?= $giatu ?>&giaden=<?= $giaden ?>">&lt;</a>
             <?php } ?>
 
             <?php
@@ -179,11 +220,11 @@ $categories = [1 => 'Laptop AI', 2 => 'Laptop Gaming', 3 => 'Laptop mỏng nhẹ
             for ($i = $start; $i <= $end; $i++) {
                 $active = ($i == $page) ? "active" : "";
             ?>
-                <a class="page <?= $active ?>" href="?page=<?= $i ?>&ten=<?= $keyword ?>&loai=<?= $category ?>&giatu=<?= $giatu ?>&giaden=<?= $giaden ?>"><?= $i ?></a>
+                <a class="page <?= $active ?>" href="?page=<?= $i ?>&ten=<?= urlencode($keyword) ?>&loai=<?= $category ?>&giatu=<?= $giatu ?>&giaden=<?= $giaden ?>"><?= $i ?></a>
             <?php } ?>
 
             <?php if ($page < $total_pages) { ?>
-                <a class="page next" href="?page=<?= $page + 1 ?>&ten=<?= $keyword ?>&loai=<?= $category ?>&giatu=<?= $giatu ?>&giaden=<?= $giaden ?>">&gt;</a>
+                <a class="page next" href="?page=<?= $page + 1 ?>&ten=<?= urlencode($keyword) ?>&loai=<?= $category ?>&giatu=<?= $giatu ?>&giaden=<?= $giaden ?>">&gt;</a>
             <?php } ?>
         </div>
     </main>

@@ -30,7 +30,7 @@ unset($_SESSION['loginError']);
 
             <form method="POST" action="admin-login-process.php" class="admin-login-form">
                 <div class="form-group">
-                    <label for="adminUsername">Tên đăng nhập:</label>
+                    <label for="adminUsername">Email:</label>
                     <input type="text" id="adminUsername" name="username" required autocomplete="username" />
                 </div>
 
